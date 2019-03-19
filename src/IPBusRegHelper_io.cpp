@@ -1,8 +1,32 @@
-#include <IPBus_reg_helper.hh>
+#include <IPBusRegHelper.hh>
 #include <BUException/ExceptionBase.hh>
 
+static void ReplaceStringInPlace(std::string& subject, const std::string& search,
+			  const std::string& replace) {
+  size_t pos = 0;
+  while ((pos = subject.find(search, pos)) != std::string::npos) {
+    subject.replace(pos, search.length(), replace);
+    pos += replace.length();
+  }
+}
+
+
+
 std::vector<std::string> IPBusRegHelper::myMatchRegex(std::string regex){
-  return hw->getNodes(regex);  
+  std::string rx = regex;
+
+  std::transform( rx.begin(), rx.end(), rx.begin(), ::toupper);
+
+  if( rx.size() > 6 && rx.substr(0,5) == "PERL:") {
+    printf("Using PERL-style regex unchanged\n");
+    rx = rx.substr( 5);
+  } else {
+    ReplaceStringInPlace( rx, ".", "#");
+    ReplaceStringInPlace( rx, "*",".*");
+    ReplaceStringInPlace( rx, "#","\\.");
+  }
+
+  return hw->getNodes( rx);
 }
 
 uint32_t IPBusRegHelper::RegReadAddress(uint32_t addr){ 

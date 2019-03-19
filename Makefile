@@ -1,10 +1,9 @@
 PackagePath = $(shell pwd)
 
 
-LIBRARY_IPBUS_REG_HELPER = lib/libBUTool_NGFECDevice.so
-LIBRARY_IPBUS_REG_HELPER_SOURCES  = $(wildcard src/ngfec_device/*.cc)
-LIBRARY_IPBUS_REG_HELPER_SOURCES += $(wildcard src/uhal_helpers/*.cc)
-LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES = $(patsubst src/%.cc,obj/%.o,${LIBRARY_IPBUS_REG_HELPER_SOURCES})
+LIBRARY_IPBUS_REG_HELPER = lib/libBUTool_IPBusRegHelpers.so
+LIBRARY_IPBUS_REG_HELPER_SOURCES = $(wildcard src/*.cpp)
+LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES = $(patsubst src/%.cpp,obj/%.o,${LIBRARY_IPBUS_REG_HELPER_SOURCES})
 
 INCLUDE_PATH = \
 							-Iinclude  \
@@ -32,15 +31,14 @@ CPP_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -We
 
 CPP_FLAGS +=-fno-omit-frame-pointer -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual
 
-LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES}
+LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl,-rpath=$(BUTOOL_PATH)/lib,-rpath=$(CACTUS_ROOT)/lib
 
 
 
 # ------------------------
 # IPBUS stuff
 # ------------------------
-UHAL_LIBRARIES = -lcactus_extern_pugixml 	\
-	         -lcactus_uhal_log 		\
+UHAL_LIBRARIES = -lcactus_uhal_log 		\
                  -lcactus_uhal_grammars 	\
                  -lcactus_uhal_uhal 		
 
@@ -71,7 +69,7 @@ _cleanall:
 all: _all
 build: _all
 buildall: _all
-_all: _cactus_env ${LIBRARY_NGFECDEVICE}
+_all: _cactus_env ${LIBRARY_IPBUS_REG_HELPER}
 
 _cactus_env: 
 ifndef CACTUS_ROOT
@@ -83,10 +81,10 @@ endif
 # ------------------------
 # IPBusRegHelper library
 # ------------------------
-${LIBRARY_IPBUS_REG_HELPER}: ${LIBRARY_NGFECDEVICE_OBJECT_FILES}
+${LIBRARY_IPBUS_REG_HELPER}: ${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES}
 	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} $^ -o $@
 
-${LIBRARY_NGFECDEVICE_OBJECT_FILES}: obj/%.o : src/%.cc 
+${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp
 	mkdir -p $(dir $@)
 	mkdir -p {lib,obj}
 	g++ ${CPP_FLAGS} ${UHAL_CPP_FLAGHS} -c $< -o $@

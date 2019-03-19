@@ -1,5 +1,43 @@
-#include <IPBus_reg_helper.hh>
+#include <IPBusRegHelper.hh>
 #include <BUException/ExceptionBase.hh>
+
+#include <boost/regex.hpp>
+
+//for network hints
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+//for inet_ntoa
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
+static void hostnameToIp(char const * hostname, char *ip) {
+  struct addrinfo hints, *servinfo, *p;  
+  struct sockaddr_in *h;  
+  int rv;  
+ 
+  memset(&hints, 0, sizeof hints);  
+  hints.ai_family = AF_INET; // use AF_INET assuming IPv4 or AF_UNSPEC if also accept IPv6 
+  hints.ai_socktype = SOCK_STREAM;  
+ 
+  if ( (rv = getaddrinfo( hostname , NULL , &hints , &servinfo) ) != 0) {   
+    // ATTENTION: should throw exception and append gai_strerror(rv), print and return 1 placeholder for now   
+    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));  
+    return;
+  }   
+  // loop through all the results and connect to the first we can 
+  for(p = servinfo; p != NULL; p = p->ai_next) {   
+    h = (struct sockaddr_in *) p->ai_addr;    
+    //ATTENTION: Should check that ip is large enough to copy given IP address   
+    strcpy(ip , inet_ntoa( h->sin_addr ) );   
+  }   
+  freeaddrinfo(servinfo); // all done with this structure    
+}    
+
+
+
 
 //
 // read one or more registers
@@ -12,7 +50,7 @@ IPBusRegHelper::IPBusRegHelper() : BUTool::RegisterHelper(RegisterNameCase::UPPE
   Init("IPBUS_DEVICE");
 }
 IPBusRegHelper::IPBusRegHelper(std::string const & deviceTypeName):RegisterHelper(RegisterNameCase::UPPER){
-  Init("IPBUS_DEVICE");
+  Init(deviceTypeName);
 }
 
 void IPBusRegHelper::Init(std::string const & deviceTypeName){
@@ -24,12 +62,12 @@ void IPBusRegHelper::Init(std::string const & deviceTypeName){
 #define FILE_ADDR_ARG 0
 #define ADDR_TABLE_PATH_ARG 1
 #define PREFIX_ARG 2
-void IPBusRegHelper::Connect(std::vector<std::string> args){
+void IPBusRegHelper::Connect(std::vector<std::string> arg){
   //--- inhibit most noise from uHAL
   uhal::setLogLevelTo(uhal::Error());
 
   if(0 == arg.size()){
-    BUException::DEVICE_CREATION_ERROR e;
+    BUException::IPBUS_CONNECTION_ERROR e;
     e.Append("No file/address specified\n");
     throw e;
   }
@@ -67,19 +105,19 @@ void IPBusRegHelper::Connect(std::vector<std::string> args){
     //IP Address
 
     //Get the IP
-    std::string ip_addr(reMatch[1].first, reMatch[1].second); // extract 1st 3 octets                               
-    std::string ip_last(reMatch[2].first, reMatch[2].second); // extract last octet                                 
+    std::string ip_addr(reMatch[1].first, reMatch[1].second); // extract 1st 3 octets 
+    std::string ip_last(reMatch[2].first, reMatch[2].second); // extract last octet   
     uint8_t oct_last = atoi( ip_last.c_str());
     
     //Check for control hub option
-    bool use_ch = reMatch[3].matched; // check for /c suffix                                                     
+    bool use_ch = reMatch[3].matched; // check for /c suffix   
     if( use_ch){
-      printf("use_ch true\n");
+ printf("use_ch true\n");
     } else {
-      printf("use_ch false\n");
+ printf("use_ch false\n");
     }
 
-    // specify protocol prefix                                                                                
+    // specify protocol prefix
     std::string proto = use_ch ? "chtcp-2.0://localhost:10203?target=" : "ipbusudp-2.0://";
 
     snprintf( uri, 255, "%s%s%d:50001", proto.c_str(), ip_addr.c_str(), oct_last);
@@ -91,10 +129,10 @@ void IPBusRegHelper::Connect(std::vector<std::string> args){
     printf("Address table name is %s\n", addrTableFull.c_str());
 
     try {
-      hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull));
+ hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull));
     } catch( uhal::exception::exception& e) {
-      e.append("Module::Connect() creating hardware device");
-      printf("Error creating uHAL hardware device\n");
+ e.append("Module::Connect() creating hardware device");
+ printf("Error creating uHAL hardware device\n");
     }
 
   } else if( boost::regex_match( connectionFile.c_str(), reMatch, reXMLFile) ) {
@@ -105,59 +143,58 @@ void IPBusRegHelper::Connect(std::vector<std::string> args){
     //
     //    printf("Using .xml connection file...\n");
     //    if(3 >  arg.size()){ 
-    //      // the third argument is the prefix
-    //      // use default "T1" and "T2" xml IDs                                                     
-    //      amc13 = new AMC13( connectionFile);
+    // // the third argument is the prefix
+    // // use default "T1" and "T2" xml IDs   
+    // amc13 = new AMC13( connectionFile);
     //    } else { 
-    //      // specified xml ID prefix                                                                          
-    //      const std::string t1id = arg[PREFIX_ARG] + ".T1";
-    //      const std::string t2id = arg[PREFIX_ARG] + ".T2";
-    //      amc13 = new AMC13( connectionFile, t1id, t2id);
+    // // specified xml ID prefix    
+    // const std::string t1id = arg[PREFIX_ARG] + ".T1";
+    // const std::string t2id = arg[PREFIX_ARG] + ".T2";
+    // amc13 = new AMC13( connectionFile, t1id, t2id);
     //  }
-  } else { // hostname less '_t2' and '_t1'                                                                    
+  } else { // hostname less '_t2' and '_t1'   
     //===========================================================================
     // Hostname
     //===========================================================================
     
     printf("does NOT match\n");
-    // define necessary variables                                                                             
+    // define necessary variables  
     char ip[16];
     std::string name;
     name = connectionFile;
 
-    // convert hostname to ips                                                                                
+    // convert hostname to ips
     printf("converting host name...\n");
     hostnameToIp( name.c_str(), ip);
     printf("making proto...\n");
 
-    // specify protocol prefix                                                                                
-    std::string proto = "ipbusudp-2.0://"; // ATTENTION: may need to add check for chtcp protocol             
+    // specify protocol prefix
+    std::string proto = "ipbusudp-2.0://"; // ATTENTION: may need to add check for chtcp protocol   
 
     printf("copying uris");
-    // copy ip address to appropriate uris                                                                    
+    // copy ip address to appropriate uris   
     snprintf( uri, 255, "%s%s:50001", proto.c_str(), ip );
     printf("Created URI from IP address: %s\n",uri);
 
     std::string addrTableFull = "file://" + addressTablePath;
     
     try {
-      hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
+ hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
     } catch( uhal::exception::exception& e) {
-      e.append("Module::Connect() creating hardware device");
-      printf("Error creating uHAL hardware device\n");
+ e.append("Module::Connect() creating hardware device");
+ printf("Error creating uHAL hardware device\n");
     }
 
   }
 
 
   if( hw == NULL){
-    BUException::DEVICE_CREATION_ERROR e;
+    BUException::IPBUS_CONNECTION_ERROR e;
     e.Append("Unable to create HWInterface\n");
     throw e;    
   }
 
 }
 
-}
 
   

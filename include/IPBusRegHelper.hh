@@ -1,8 +1,10 @@
 #ifndef __IPBUS_REG_HELPER_HH__
 #define __IPBUS_REG_HELPER_HH__
 
-#include <helpers/register_helper.hh>
+#include <BUTool/helpers/register_helper.hh>
 #include <uhal/uhal.hpp>
+
+#include <IPBusRegHelperExceptions.hh>
 
 #include <vector>
 #include <string>
