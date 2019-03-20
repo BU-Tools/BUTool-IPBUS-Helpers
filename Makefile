@@ -81,7 +81,7 @@ endif
 # ------------------------
 # IPBusRegHelper library
 # ------------------------
-${LIBRARY_IPBUS_REG_HELPER}: ${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES}
+${LIBRARY_IPBUS_REG_HELPER}: ${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES} ${BUTOOL_PATH}/lib/libBUTool_Helpers.so
 	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} $^ -o $@
 
 ${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp
