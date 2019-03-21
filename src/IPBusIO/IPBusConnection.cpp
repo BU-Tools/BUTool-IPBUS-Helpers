@@ -1,5 +1,6 @@
-#include <IPBusRegHelper.hh>
+#include <IPBusIO/IPBusConnection.hh>
 #include <BUException/ExceptionBase.hh>
+#include <IPBusIO/IPBusExceptions.hh>
 
 #include <boost/regex.hpp>
 
@@ -39,30 +40,40 @@ static void hostnameToIp(char const * hostname, char *ip) {
 
 
 
-//
-// read one or more registers
-// one argument may be: address, single name or regular expression
-// second argument is count to read from each address
-// last argument may be "D" for doublewords (64-bits)
-//
-
-IPBusRegHelper::IPBusRegHelper() : BUTool::RegisterHelper(RegisterNameCase::UPPER){
-  Init("IPBUS_DEVICE");
+IPBusConnection::IPBusConnection(){
+  //Now Connect will not throw unless called twice
+  hw = NULL;
+  IPBusDeviceTypeName = "IPBUS_DEVICE";
 }
-IPBusRegHelper::IPBusRegHelper(std::string const & deviceTypeName):RegisterHelper(RegisterNameCase::UPPER){
-  Init(deviceTypeName);
-}
-
-void IPBusRegHelper::Init(std::string const & deviceTypeName){
+IPBusConnection::IPBusConnection(std::string const & deviceTypeName){
+  //Now Connect will not throw unless called twice
   hw = NULL;
   IPBusDeviceTypeName = deviceTypeName;
 }
+IPBusConnection::IPBusConnection(uhal::HwInterface * _hw){
+  //Now Connect will throw
+  hw = _hw;
+  SetHWInterface(&hw); //Update the inherited IPBusIO class which HW device to use
+  IPBusDeviceTypeName = "EXTERNAL PTR";
+}
 
+IPBusConnection::~IPBusConnection(){
+  if(NULL != hw){
+    delete hw;
+  }
+  hw = NULL;//Tells everyone else that this is now null
+}
 
 #define FILE_ADDR_ARG 0
 #define ADDR_TABLE_PATH_ARG 1
 #define PREFIX_ARG 2
-void IPBusRegHelper::Connect(std::vector<std::string> arg){
+void IPBusConnection::Connect(std::vector<std::string> arg){
+  if(NULL != hw){
+    BUException::IPBUS_CONNECTION_ERROR e;
+    e.Append("IPBusDevice already connected\n");
+    throw e;    
+  }
+
   //--- inhibit most noise from uHAL
   uhal::setLogLevelTo(uhal::Error());
 
@@ -112,9 +123,9 @@ void IPBusRegHelper::Connect(std::vector<std::string> arg){
     //Check for control hub option
     bool use_ch = reMatch[3].matched; // check for /c suffix   
     if( use_ch){
- printf("use_ch true\n");
+      printf("use_ch true\n");
     } else {
- printf("use_ch false\n");
+      printf("use_ch false\n");
     }
 
     // specify protocol prefix
@@ -129,10 +140,10 @@ void IPBusRegHelper::Connect(std::vector<std::string> arg){
     printf("Address table name is %s\n", addrTableFull.c_str());
 
     try {
- hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull));
+      hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull));
     } catch( uhal::exception::exception& e) {
- e.append("Module::Connect() creating hardware device");
- printf("Error creating uHAL hardware device\n");
+      e.append("Module::Connect() creating hardware device");
+      printf("Error creating uHAL hardware device\n");
     }
 
   } else if( boost::regex_match( connectionFile.c_str(), reMatch, reXMLFile) ) {
@@ -179,10 +190,10 @@ void IPBusRegHelper::Connect(std::vector<std::string> arg){
     std::string addrTableFull = "file://" + addressTablePath;
     
     try {
- hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
+      hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
     } catch( uhal::exception::exception& e) {
- e.append("Module::Connect() creating hardware device");
- printf("Error creating uHAL hardware device\n");
+      e.append("Module::Connect() creating hardware device");
+      printf("Error creating uHAL hardware device\n");
     }
 
   }
@@ -193,8 +204,10 @@ void IPBusRegHelper::Connect(std::vector<std::string> arg){
     e.Append("Unable to create HWInterface\n");
     throw e;    
   }
-
+  SetHWInterface(&hw); //Update the inherited IPBusIO class which HW device to use
 }
 
 
-  
+uhal::HwInterface * const * IPBusConnection::GetHWInterface(){
+  return &hw;
+}

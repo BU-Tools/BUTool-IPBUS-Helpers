@@ -1,9 +1,17 @@
 PackagePath = $(shell pwd)
 
 
-LIBRARY_IPBUS_REG_HELPER = lib/libBUTool_IPBusRegHelpers.so
-LIBRARY_IPBUS_REG_HELPER_SOURCES = $(wildcard src/*.cpp)
-LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES = $(patsubst src/%.cpp,obj/%.o,${LIBRARY_IPBUS_REG_HELPER_SOURCES})
+LIB_IPBUS_IO = lib/libBUTool_IPBusIO.so
+LIB_IPBUS_IO_SOURCES = $(wildcard src/IPBusIO/*.cpp)
+LIB_IPBUS_IO_OBJECT_FILES = $(patsubst src/%.cpp,obj/%.o,${LIB_IPBUS_IO_SOURCES})
+LIB_IPBUS_IO_DEPLIBS = libToolException.so
+LIB_IPBUS_IO_LDFLAGS = $(patsubt lib%.so/-l%,${LIB_IPBUS_IO_DEPLIBS})
+
+LIB_IPBUS_REG_HELPER = lib/libBUTool_IPBusRegHelpers.so
+LIB_IPBUS_REG_HELPER_SOURCES = $(wildcard src/IPBusRegHelper/*.cpp)
+LIB_IPBUS_REG_HELPER_OBJECT_FILES = $(patsubst src/%.cpp,obj/%.o,${LIB_IPBUS_REG_HELPER_SOURCES})
+LIB_IPBUS_REG_HELPER_DEPLIBS = libToolException.so libBUTool_Helpers.so libBUTool_IPBusIO.so
+LIB_IPBUS_REG_HELPER_LDFLAGS = $(patsubt lib%.so/-l%,${LIB_IPBUS_REG_HELPER_DEPLIBS})
 
 INCLUDE_PATH = \
 							-Iinclude  \
@@ -20,9 +28,7 @@ ifdef BOOST_LIB
 LIBRARY_PATH +=-L$(BOOST_LIB)
 endif
 
-LIBRARIES =    	-lToolException	\
-		-lBUTool_Helpers \
-		-lboost_regex
+LIBRARIES =    	-lboost_regex
 
 
 
@@ -69,7 +75,8 @@ _cleanall:
 all: _all
 build: _all
 buildall: _all
-_all: _cactus_env ${LIBRARY_IPBUS_REG_HELPER}
+#_all: _cactus_env ${LIB_IPBUS_REG_HELPER} ${LIB_IPBUS_IO}
+_all: _cactus_env ${LIB_IPBUS_IO}
 
 _cactus_env: 
 ifndef CACTUS_ROOT
@@ -81,13 +88,20 @@ endif
 # ------------------------
 # IPBusRegHelper library
 # ------------------------
-${LIBRARY_IPBUS_REG_HELPER}: ${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES} ${BUTOOL_PATH}/lib/libBUTool_Helpers.so
-	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} $^ -o $@
+#${LIB_IPBUS_REG_HELPER}: ${LIB_IPBUS_REG_HELPER_OBJECT_FILES} 
+#	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
 
-${LIBRARY_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp
+${LIB_IPBUS_IO}: ${LIB_IPBUS_IO_OBJECT_FILES} 
+	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
+
+
+#${LIB_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp 
+obj/%.o : src/%.cpp 
 	mkdir -p $(dir $@)
 	mkdir -p {lib,obj}
 	g++ ${CPP_FLAGS} ${UHAL_CPP_FLAGHS} -c $< -o $@
+
+
 
 -include $(LIBRARY_OBJECT_FILES:.o=.d)
 
