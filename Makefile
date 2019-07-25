@@ -1,5 +1,6 @@
-PackagePath = $(shell pwd)
+BUTOOL_PATH?=../../
 
+CXX?=g++
 
 LIB_IPBUS_IO = lib/libBUTool_IPBusIO.so
 LIB_IPBUS_IO_SOURCES = $(wildcard src/IPBusIO/*.cpp)
@@ -33,11 +34,11 @@ LIBRARIES =    	-lboost_regex
 
 
 
-CPP_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -Werror -Wno-literal-suffix
+CXX_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -Werror -Wno-literal-suffix
 
-CPP_FLAGS +=-fno-omit-frame-pointer -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual
+CXX_FLAGS +=-fno-omit-frame-pointer -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual ${COMPILETIME_ROOT} ${FALLTHROUGH_FLAGS}
 
-LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl,-rpath=$(BUTOOL_PATH)/lib,-rpath=$(CACTUS_ROOT)/lib
+LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl, ${COMPILETIME_ROOT}
 
 
 
@@ -48,13 +49,31 @@ UHAL_LIBRARIES = -lcactus_uhal_log 		\
                  -lcactus_uhal_grammars 	\
                  -lcactus_uhal_uhal 		
 
+# Search uHAL library from $IPBUS_PATH first then from $CACTUS_ROOT
+ifdef IPBUS_PATH
+$(info using uHAL lib from user defined IPBUS_PATH=${IPBUS_PATH})
+UHAL_INCLUDE_PATH = \
+	         					-isystem$(UHAL_PATH)/uhal/include \
+	         					-isystem$(UHAL_PATH)/log/include \
+	         					-isystem$(UHAL_PATH)/grammars/include 
+UHAL_LIBRARY_PATH = \
+							-L$(UHAL_PATH)/uhal/lib \
+	         					-L$(UHAL_PATH)/log/lib \
+	         					-L$(UHAL_PATH)/grammars/lib 
+else
+ifdef CACTUS_ROOT
+$(info using uHAL lib from user defined CACTUS_ROOT=${CACTUS_ROOT})
 UHAL_INCLUDE_PATH = \
 	         					-isystem$(CACTUS_ROOT)/include 
 
 UHAL_LIBRARY_PATH = \
 							-L$(CACTUS_ROOT)/lib 
+else
+$(error Must define IPBUS_PATH or CACTUS_ROOT to include uHAL libraries (define through Makefile or command line\))
+endif
+endif
 
-UHAL_CPP_FLAGHS = ${UHAL_INCLUDE_PATH}
+UHAL_CXX_FLAGHS = ${UHAL_INCLUDE_PATH}
 
 UHAL_LIBRARY_FLAGS = ${UHAL_LIBRARY_PATH}
 
@@ -76,30 +95,24 @@ all: _all
 build: _all
 buildall: _all
 #_all: _cactus_env ${LIB_IPBUS_REG_HELPER} ${LIB_IPBUS_IO}
-_all: _cactus_env ${LIB_IPBUS_IO}
+_all: ${LIB_IPBUS_IO}
 
-_cactus_env: 
-ifndef CACTUS_ROOT
-	$(warning CACTUS_ROOT enviornment variable is not set)
-	$(warning CACTUS_ROOT must list the path containing the CACTUS libraries and must be added to the LD_LIBRARY_PATH)
-	$(error   CACTUS NOT FOUND)
-endif
 
 # ------------------------
 # IPBusRegHelper library
 # ------------------------
 #${LIB_IPBUS_REG_HELPER}: ${LIB_IPBUS_REG_HELPER_OBJECT_FILES} 
-#	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
+#	${CXX} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
 
 ${LIB_IPBUS_IO}: ${LIB_IPBUS_IO_OBJECT_FILES} 
-	g++ ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
+	${CXX} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
 
 
 #${LIB_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp 
 obj/%.o : src/%.cpp 
 	mkdir -p $(dir $@)
 	mkdir -p {lib,obj}
-	g++ ${CPP_FLAGS} ${UHAL_CPP_FLAGHS} -c $< -o $@
+	${CXX} ${CXX_FLAGS} ${UHAL_CXX_FLAGHS} -c $< -o $@
 
 
 

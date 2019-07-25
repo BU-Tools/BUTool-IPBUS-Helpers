@@ -62,7 +62,7 @@ uint32_t IPBusIO::RegReadAddress(uint32_t addr){
   }catch (uhal::exception::ReadAccessDenied & e){
     BUException::REG_READ_DENIED e2;    
     char str_addr[] = "0xXXXXXXXX";
-    snprintf(str_addr,10,"0x%08X",addr);
+    snprintf(str_addr,11,"0x%08X",addr);
     e2.Append(str_addr);
     throw e2;
   }
@@ -112,7 +112,7 @@ void IPBusIO::RegWriteAddress(uint32_t addr,uint32_t data){
   }catch (uhal::exception::WriteAccessDenied & e){
     BUException::REG_WRITE_DENIED e2;
     char str_addr[] = "0xXXXXXXXX";
-    snprintf(str_addr,10,"0x%08X",addr);
+    snprintf(str_addr,11,"0x%08X",addr);
     e2.Append(str_addr);
     throw e2;
   }

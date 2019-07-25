@@ -150,19 +150,27 @@ void IPBusConnection::Connect(std::vector<std::string> arg){
     //===========================================================================
     //Connection File  
     //===========================================================================
-    printf("This mode needs to be re-implemented\n");    
-    //
-    //    printf("Using .xml connection file...\n");
-    //    if(3 >  arg.size()){ 
-    // // the third argument is the prefix
-    // // use default "T1" and "T2" xml IDs   
-    // amc13 = new AMC13( connectionFile);
-    //    } else { 
-    // // specified xml ID prefix    
-    // const std::string t1id = arg[PREFIX_ARG] + ".T1";
-    // const std::string t2id = arg[PREFIX_ARG] + ".T2";
-    // amc13 = new AMC13( connectionFile, t1id, t2id);
-    //  }
+    printf("Using .xml connection file...\n");
+    std::string prefix_connectionFile("file://");
+    prefix_connectionFile+=connectionFile;
+    std::string connectionFileEntry("test.0");
+    //using the uhal library to get the device from the connection file
+    uhal::ConnectionManager manager( prefix_connectionFile.c_str());
+    
+    //expect an argument specifying an entry in the connection file following the connection file name
+    //e.g.: >connect connectionFile.xml test.0
+    if(1 == arg.size()){
+      printf("Warning: Input is a connection file but no device entry specified, using default entry name: %s\n", connectionFileEntry.c_str());
+    }
+    else connectionFileEntry = arg[1];
+
+    try {
+      hw = new uhal::HwInterface( manager.getDevice ( connectionFileEntry.c_str() ));
+    }  catch (uhal::exception::exception& e) {
+      e.append("Module::Connect() creating hardware device");
+      printf("Error while creating uHAL hardware device %s from connection file %s\n", connectionFileEntry.c_str(), connectionFile.c_str());
+    }
+
   } else { // hostname less '_t2' and '_t1'   
     //===========================================================================
     // Hostname
