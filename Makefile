@@ -1,6 +1,11 @@
 BUTOOL_PATH?=../../
 
 CXX?=g++
+ifdef RUNTIME_LDPATH
+RUNTIME_LDPATH_FLAG = -rpath=$(RUNTIME_LDPATH)
+else
+RUNTIME_LDPATH_FLAG = -rpath=$(BUTOOL_PATH)/lib,-rpath=$(CACTUS_ROOT)/lib
+endif
 
 LIB_IPBUS_IO = lib/libBUTool_IPBusIO.so
 LIB_IPBUS_IO_SOURCES = $(wildcard src/IPBusIO/*.cpp)
@@ -38,7 +43,7 @@ CXX_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -We
 
 CXX_FLAGS +=-fno-omit-frame-pointer -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual ${COMPILETIME_ROOT} ${FALLTHROUGH_FLAGS}
 
-LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl, ${COMPILETIME_ROOT}
+LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl,${RUNTIME_LDPATH_FLAG} ${COMPILETIME_ROOT}
 
 
 
@@ -51,26 +56,20 @@ UHAL_LIBRARIES = -lcactus_uhal_log 		\
 
 # Search uHAL library from $IPBUS_PATH first then from $CACTUS_ROOT
 ifdef IPBUS_PATH
-$(info using uHAL lib from user defined IPBUS_PATH=${IPBUS_PATH})
 UHAL_INCLUDE_PATH = \
-	         					-isystem$(UHAL_PATH)/uhal/include \
-	         					-isystem$(UHAL_PATH)/log/include \
-	         					-isystem$(UHAL_PATH)/grammars/include 
+	         					-isystem$(IPBUS_PATH)/uhal/uhal/include \
+	         					-isystem$(IPBUS_PATH)/uhal/log/include \
+	         					-isystem$(IPBUS_PATH)/uhal/grammars/include 
 UHAL_LIBRARY_PATH = \
-							-L$(UHAL_PATH)/uhal/lib \
-	         					-L$(UHAL_PATH)/log/lib \
-	         					-L$(UHAL_PATH)/grammars/lib 
+								-L$(IPBUS_PATH)/uhal/uhal/lib \
+	         					-L$(IPBUS_PATH)/uhal/log/lib \
+	         					-L$(IPBUS_PATH)/uhal/grammars/lib 
 else
-ifdef CACTUS_ROOT
-$(info using uHAL lib from user defined CACTUS_ROOT=${CACTUS_ROOT})
 UHAL_INCLUDE_PATH = \
 	         					-isystem$(CACTUS_ROOT)/include 
 
 UHAL_LIBRARY_PATH = \
 							-L$(CACTUS_ROOT)/lib 
-else
-$(error Must define IPBUS_PATH or CACTUS_ROOT to include uHAL libraries (define through Makefile or command line\))
-endif
 endif
 
 UHAL_CXX_FLAGHS = ${UHAL_INCLUDE_PATH}
@@ -95,8 +94,16 @@ all: _all
 build: _all
 buildall: _all
 #_all: _cactus_env ${LIB_IPBUS_REG_HELPER} ${LIB_IPBUS_IO}
-_all: ${LIB_IPBUS_IO}
+_all: _cactus_env ${LIB_IPBUS_IO}
 
+_cactus_env:
+ifdef IPBUS_PATH
+	$(info using uHAL lib from user defined IPBUS_PATH=${IPBUS_PATH})
+else ifdef CACTUS_ROOT
+	$(info using uHAL lib from user defined CACTUS_ROOT=${CACTUS_ROOT})
+else
+	$(error Must define IPBUS_PATH or CACTUS_ROOT to include uHAL libraries (define through Makefile or command line\))
+endif
 
 # ------------------------
 # IPBusRegHelper library
