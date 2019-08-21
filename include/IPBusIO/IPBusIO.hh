@@ -24,6 +24,7 @@ public:
   std::string GetRegPermissions(std::string const & reg);
   std::string GetRegDescription(std::string const & reg);
   std::string GetRegDebug(std::string const & reg);  
+  const boost::unordered_map<std::string,std::string> & GetParameters(std::string const & reg);
 
   //Named register writes
   uint32_t RegReadAddress(uint32_t addr);

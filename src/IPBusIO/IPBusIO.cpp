@@ -204,7 +204,7 @@ std::string IPBusIO::GetRegDebug(std::string const & reg){
   return ret;
 }
 
-  
-  
-
-  
+const boost::unordered_map<std::string,std::string> & IPBusIO::GetParameters(std::string const & reg){
+  CheckHW(hw); //Make sure the IPBus state is ok
+  return (*hw)->getNode(reg).getParameters();
+}
