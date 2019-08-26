@@ -86,6 +86,21 @@ uint32_t IPBusIO::RegReadRegister(std::string const & reg){
   }
   return ret.value();
 }
+uint32_t IPBusIO::RegReadNode(uhal::Node const & node){
+  CheckHW(hw); //Make sure the IPBus state is ok 
+  uhal::ValWord<uint32_t> vw; //valword for transaction
+  try{
+    vw = node.read(); // start the transaction
+    (*hw)->getClient().dispatch(); // force the transaction
+  }catch (uhal::exception::ReadAccessDenied & e){
+    BUException::REG_READ_DENIED e2;    
+    e2.Append("failed Node read");
+    throw e2;
+  }
+
+  return vw.value();
+}
+
 void IPBusIO::RegWriteAction(std::string const & reg){
   CheckHW(hw); //Make sure the IPBus state is ok
   //This is a funky uhal thing
@@ -129,6 +144,17 @@ void IPBusIO::RegWriteRegister(std::string const & reg, uint32_t data){
   }catch (uhal::exception::WriteAccessDenied & e){
     BUException::REG_WRITE_DENIED e2;
     e2.Append(reg);
+    throw e2;
+  }
+}
+void IPBusIO::RegWriteNode(uhal::Node const & node,uint32_t data){
+  CheckHW(hw); //Make sure the IPBus state is ok 
+  try{
+    node.write(data); // start the transaction
+    (*hw)->getClient().dispatch(); // force the transaction
+  }catch (uhal::exception::ReadAccessDenied & e){
+    BUException::REG_WRITE_DENIED e2;    
+    e2.Append("failed Node write");
     throw e2;
   }
 }
@@ -207,4 +233,10 @@ std::string IPBusIO::GetRegDebug(std::string const & reg){
 const boost::unordered_map<std::string,std::string> & IPBusIO::GetParameters(std::string const & reg){
   CheckHW(hw); //Make sure the IPBus state is ok
   return (*hw)->getNode(reg).getParameters();
+}
+
+
+uhal::Node const & IPBusIO::GetNode(std::string const & reg){
+  CheckHW(hw); //Make sure the IPBus state is ok
+  return (*hw)->getNode(reg);
 }
