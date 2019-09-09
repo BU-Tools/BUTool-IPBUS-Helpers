@@ -1,4 +1,5 @@
 #include <IPBusStatus/IPBusStatus.hh>
+#include <uhal/ProtocolUIO.hpp>
 
 void IPBusStatus::Process(std::string const & singleTable){  
   //Build tables
@@ -23,11 +24,17 @@ void IPBusStatus::Process(std::string const & singleTable){
       std::string tableName = itTable->second;
       //Add this Address to our Tables if it matches our singleTable option, or we are looking at all tables
       if( singleTable.empty() || TableNameCompare(tableName,singleTable)){
-        tables[tableName].Add(*itName,
-                              RegReadRegister(*itName),
+	uint32_t val;
+	try{
+	  val = RegReadRegister(*itName);
+	}catch(uhal::exception::UIOBusError & e){
+	  continue;
+	}
+	tables[tableName].Add(*itName,
+			      val,
 			      GetRegMask(*itName),
-                              parameters);
+			      parameters);	
       }
     }
-  }  
+  }
 }
