@@ -10,6 +10,10 @@ void IPBusStatus::Process(std::string const & singleTable){
       itName++){
     //Get the list of parameters for this node
     boost::unordered_map<std::string,std::string>  parameters = GetParameters(*itName);
+
+    //In IPBus the description is separate, so we add it to parameters here
+    parameters["Description"] = GetRegDescription(*itName);
+
     if(parameters.size() != 0){      
       for(boost::unordered_map<std::string,std::string>::iterator itTable = parameters.begin();
 	  itTable != parameters.end();
