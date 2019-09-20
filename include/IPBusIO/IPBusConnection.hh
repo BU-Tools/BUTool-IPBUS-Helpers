@@ -10,7 +10,7 @@ public:
   IPBusConnection();
   IPBusConnection(std::string const & deviceTypeName);
   IPBusConnection(uhal::HwInterface * _hw); //To configure this from an externally created HW device
-  ~IPBusConnection();
+  virtual ~IPBusConnection();
 
   void Connect(std::vector<std::string> args);
   uhal::HwInterface * const * GetHWInterface();//Get a const pointer to a pointer to a HW device so this class is still in control of that data.

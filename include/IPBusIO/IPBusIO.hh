@@ -14,7 +14,7 @@
 class IPBusIO{
 public:
   IPBusIO();
-
+  virtual ~IPBusIO(){};
   std::vector<std::string> myMatchRegex(std::string regex);  
   //Misc markups
   uint32_t GetRegAddress(std::string const & reg);
