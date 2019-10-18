@@ -5,13 +5,17 @@ This helping code wraps IPBus and provides the functions needed to connect the I
 
 #### Files
 > include/IPBusIO/IPBusConnection.hh:
+
 This class holds the IPBus uhal::HwInterface class and some code for creating that object. 
+
 It also has warpped read/write functions for IPBus that come from the IPBusIO class
 
 > include/IPBusIO/IPBusIO.hh:
+
 This class is handed a uhal::HwInterface and provides nice wrappers for read/write
 
 > include/IPBusRegHelper/IPBusRegHelper.hh:
+
 This class maps our wrapped IPBus functions to the API from BUTool for nice looking reads/writes
 
 ### Use
