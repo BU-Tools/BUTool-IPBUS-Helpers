@@ -39,8 +39,6 @@ std::vector<std::string> IPBusIO::myMatchRegex(std::string regex){
   CheckHW(hw); //Make sure the IPBus state is ok
   std::string rx = regex;
 
-  std::transform( rx.begin(), rx.end(), rx.begin(), ::toupper);
-
   if( rx.size() > 6 && rx.substr(0,5) == "PERL:") {
     printf("Using PERL-style regex unchanged\n");
     rx = rx.substr( 5);
