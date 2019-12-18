@@ -44,6 +44,7 @@ endif
 LIBRARIES =    	-lboost_regex
 
 
+INSTALL_PATH ?= ./install
 
 
 CXX_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -Werror -Wno-literal-suffix
@@ -76,7 +77,7 @@ UHAL_INCLUDE_PATH = \
 	         					-isystem$(CACTUS_ROOT)/include 
 
 UHAL_LIBRARY_PATH = \
-							-L$(CACTUS_ROOT)/lib 
+							-L$(CACTUS_ROOT)/lib  -Wl,-rpath=$(CACTUS_ROOT)/lib
 endif
 
 UHAL_CXX_FLAGHS = ${UHAL_INCLUDE_PATH}
@@ -123,6 +124,14 @@ ${LIB_IPBUS_IO}: ${LIB_IPBUS_IO_OBJECT_FILES}
 
 ${LIB_IPBUS_STATUS}: ${LIB_IPBUS_STATUS_OBJECT_FILES} 
 	${CXX} ${LINK_LIBRARY_FLAGS} ${UHAL_LIBRARY_FLAGS} ${UHAL_LIBRARIES} ${LIB_IPBUS_REG_HELPER_LDFLAGS} $^ -o $@
+
+
+# -----------------------
+# install
+# -----------------------
+install: all
+	 install -m 775 -d ${INSTALL_PATH}/lib
+	 install -b -m 775 ./lib/* ${INSTALL_PATH}/lib
 
 
 #${LIB_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp 
