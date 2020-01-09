@@ -1,5 +1,5 @@
 #include <IPBusStatus/IPBusStatus.hh>
-#include <uhal/ProtocolUIO.hpp>
+#include <ProtocolUIO.hpp>
 
 void IPBusStatus::Process(std::string const & singleTable){  
   //Build tables
