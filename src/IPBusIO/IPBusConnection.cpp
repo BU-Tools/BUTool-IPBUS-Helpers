@@ -155,7 +155,7 @@ void IPBusConnection::Connect(std::vector<std::string> arg){
     prefix_connectionFile+=connectionFile;
     std::string connectionFileEntry("test.0");
     //using the uhal library to get the device from the connection file
-    uhal::ConnectionManager manager( prefix_connectionFile.c_str(),std::vector<std::string(1,"uioaxi-1.0")));
+    uhal::ConnectionManager manager( prefix_connectionFile.c_str(),std::vector<std::string>(1,"uioaxi-1.0"));
     
     //expect an argument specifying an entry in the connection file following the connection file name
     //e.g.: >connect connectionFile.xml test.0
