@@ -60,24 +60,29 @@ LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBR
 # ------------------------
 UHAL_LIBRARIES = -lcactus_uhal_log 		\
                  -lcactus_uhal_grammars 	\
-                 -lcactus_uhal_uhal 		
+                 -lcactus_uhal_uhal 		\
+		 -lUIOuHAL
 
 # Search uHAL library from $IPBUS_PATH first then from $CACTUS_ROOT
 ifdef IPBUS_PATH
 UHAL_INCLUDE_PATH = \
 	         					-isystem$(IPBUS_PATH)/uhal/uhal/include \
 	         					-isystem$(IPBUS_PATH)/uhal/log/include \
-	         					-isystem$(IPBUS_PATH)/uhal/grammars/include 
+	         					-isystem$(IPBUS_PATH)/uhal/grammars/include \
+							-isystem$(IPBUS_PATH)../UIOuHAL/include
 UHAL_LIBRARY_PATH = \
-								-L$(IPBUS_PATH)/uhal/uhal/lib \
+							-L$(IPBUS_PATH)/uhal/uhal/lib \
 	         					-L$(IPBUS_PATH)/uhal/log/lib \
-	         					-L$(IPBUS_PATH)/uhal/grammars/lib 
+	         					-L$(IPBUS_PATH)/uhal/grammars/lib \
+							-L$(IPBUS_PATH)../UIOuHAL/lib
 else
 UHAL_INCLUDE_PATH = \
-	         					-isystem$(CACTUS_ROOT)/include 
+	         					-isystem$(CACTUS_ROOT)/include \
+							-isystem$(CACTUS_ROOT)../UIOuHAL/include
 
 UHAL_LIBRARY_PATH = \
-							-L$(CACTUS_ROOT)/lib  -Wl,-rpath=$(CACTUS_ROOT)/lib
+							-L$(CACTUS_ROOT)/lib  -Wl,-rpath=$(CACTUS_ROOT)/lib \
+							-L$(CACTUS_ROOT)../UIOuHAL/lib  -Wl,-rpath=$(CACTUS_ROOT)../UIOuHAL/lib
 endif
 
 UHAL_CXX_FLAGHS = ${UHAL_INCLUDE_PATH}
