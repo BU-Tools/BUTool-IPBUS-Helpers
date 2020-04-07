@@ -23,12 +23,29 @@ public:
   std::string GetRegDescription(std::string const & reg){return IPBusIO::GetRegDescription(reg);};
   std::string GetRegDebug(std::string const & reg){return IPBusIO::GetRegDebug(reg);};  
 
-  //Named register writes
+
   uint32_t RegReadAddress(uint32_t addr){return IPBusIO::RegReadAddress(addr);};
   //Named register reads
   uint32_t RegReadRegister(std::string const & reg){return IPBusIO::RegReadRegister(reg);};
+  std::string RegReadString(std::string const & reg){
+    uhal::Node const & node = IPBusIO::GetNode(reg);
+    uhal::defs::BlockReadWriteMode mode = node.getMode();
+    size_t stringLen=IPBusIO::GetRegSize(reg);
+    //make sure the mode is non_incremental 
+    if((uhal::defs::INCREMENTAL != mode) &&
+       (!stringLen)){
+      BUException::REG_READ_DENIED e2;    
+      e2.Append(reg);
+      e2.Append("is not a string\n");
+      throw e2;
+    }
+    std::vector<uint32_t> val = RegBlockReadRegister(reg,stringLen);
+    std::string ret( (char *) val.data(),stringLen);
+    return ret;
+  }
 
   void RegWriteAddress(uint32_t addr, uint32_t data){IPBusIO::RegWriteAddress(addr,data);};
+  //Named register writes
   void RegWriteRegister(std::string const & reg, uint32_t data){IPBusIO::RegWriteRegister(reg,data);};
   void RegWriteAction(std::string const & reg){IPBusIO::RegWriteAction(reg);};
 
