@@ -40,7 +40,7 @@ public:
       throw e2;
     }
     std::vector<uint32_t> val = RegBlockReadRegister(reg,stringLen);
-    std::string ret( (char *) val.data(),stringLen);
+    std::string ret( (char *) val.data(),stringLen*sizeof(uint32_t));
     return ret;
   }
 
