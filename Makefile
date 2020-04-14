@@ -137,6 +137,8 @@ ${LIB_IPBUS_STATUS}: ${LIB_IPBUS_STATUS_OBJECT_FILES}
 install: all
 	 install -m 775 -d ${INSTALL_PATH}/lib
 	 install -b -m 775 ./lib/* ${INSTALL_PATH}/lib
+	 install -m 775 -d ${INSTALL_PATH}/include
+	 cp -r include/* ${INSTALL_PATH}/include
 
 
 #${LIB_IPBUS_REG_HELPER_OBJECT_FILES}: obj/%.o : src/%.cpp 
