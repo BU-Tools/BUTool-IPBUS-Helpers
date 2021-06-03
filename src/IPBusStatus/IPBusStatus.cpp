@@ -9,13 +9,13 @@ void IPBusStatus::Process(std::string const & singleTable){
       itName != Names.end();
       itName++){
     //Get the list of parameters for this node
-    boost::unordered_map<std::string,std::string>  parameters = GetParameters(*itName);
+    uMap parameters = GetParameters(*itName);
 
     //In IPBus the description is separate, so we add it to parameters here
     parameters["Description"] = GetRegDescription(*itName);
 
     if(parameters.size() != 0){      
-      for(boost::unordered_map<std::string,std::string>::iterator itTable = parameters.begin();
+      for(uMap::iterator itTable = parameters.begin();
 	  itTable != parameters.end();
 	  itTable++){
       }
@@ -23,7 +23,7 @@ void IPBusStatus::Process(std::string const & singleTable){
     //Look for a Status parameter
     if(parameters.find("Status") != parameters.end()){        
       //Check for an table name
-      boost::unordered_map<std::string,std::string>::iterator itTable = parameters.find("Table");
+      uMap::iterator itTable = parameters.find("Table");
       
       std::string tableName = itTable->second;
       //Add this Address to our Tables if it matches our singleTable option, or we are looking at all tables

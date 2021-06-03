@@ -214,9 +214,9 @@ std::string IPBusIO::GetRegDescription(std::string const & reg){
 
 std::string IPBusIO::GetRegDebug(std::string const & reg){
   CheckHW(hw); //Make sure the IPBus state is ok
-  const boost::unordered_map<std::string,std::string> params = (*hw)->getNode(reg).getParameters();
+  const uMap params = (*hw)->getNode(reg).getParameters();
   std::string ret;
-  for( boost::unordered_map<std::string,std::string>::const_iterator it = params.begin();
+  for( uMap::const_iterator it = params.begin();
        it != params.end();
        it++) {
     ret+="   ";
@@ -228,7 +228,7 @@ std::string IPBusIO::GetRegDebug(std::string const & reg){
   return ret;
 }
 
-const boost::unordered_map<std::string,std::string> & IPBusIO::GetParameters(std::string const & reg){
+const uMap & IPBusIO::GetParameters(std::string const & reg){
   CheckHW(hw); //Make sure the IPBus state is ok
   return (*hw)->getNode(reg).getParameters();
 }
