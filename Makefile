@@ -41,7 +41,8 @@ ifdef BOOST_LIB
 LIBRARY_PATH +=-L$(BOOST_LIB)
 endif
 
-LIBRARIES =    	-lboost_regex
+LIBRARIES =    	-lboost_regex \
+				-lBUTool_BUTextIO
 
 
 INSTALL_PATH ?= ./install
