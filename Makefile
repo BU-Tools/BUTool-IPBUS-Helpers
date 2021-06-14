@@ -1,5 +1,7 @@
 BUTOOL_PATH?=../../
 
+
+
 CXX?=g++
 ifdef RUNTIME_LDPATH
 RUNTIME_LDPATH_FLAG = -rpath=$(RUNTIME_LDPATH)
@@ -65,33 +67,38 @@ LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBR
 # ------------------------
 UHAL_LIBRARIES = -lcactus_uhal_log 		\
                  -lcactus_uhal_grammars 	\
-                 -lcactus_uhal_uhal 		\
-		 -lUIOuHAL
+                 -lcactus_uhal_uhal 	
+
+ifdef UIO_UHAL_PATH
+UHAL_LIBRARIES += -lUIOuHAL
+CXX_FLAGS += -DUSE_UIO_UHAL
+endif
 
 # Search uHAL library from $IPBUS_PATH first then from $CACTUS_ROOT
 ifdef IPBUS_PATH
 UHAL_INCLUDE_PATH = \
 	         					-isystem$(IPBUS_PATH)/uhal/uhal/include \
 	         					-isystem$(IPBUS_PATH)/uhal/log/include \
-	         					-isystem$(IPBUS_PATH)/uhal/grammars/include \
-							-isystem$(IPBUS_PATH)/../UIOuHAL/include
+	         					-isystem$(IPBUS_PATH)/uhal/grammars/include 
 UHAL_LIBRARY_PATH = \
 							-L$(IPBUS_PATH)/uhal/uhal/lib \
 	         					-L$(IPBUS_PATH)/uhal/log/lib \
-	         					-L$(IPBUS_PATH)/uhal/grammars/lib \
-							-L$(IPBUS_PATH)/../UIOuHAL/lib
+	         					-L$(IPBUS_PATH)/uhal/grammars/lib
 else
 UHAL_INCLUDE_PATH = \
-	         					-isystem$(CACTUS_ROOT)/include \
-							-isystem$(CACTUS_ROOT)/../UIOuHAL/include
+	         					-isystem$(CACTUS_ROOT)/include
 
 UHAL_LIBRARY_PATH = \
-							-L$(CACTUS_ROOT)/lib  -Wl,-rpath=$(CACTUS_ROOT)/lib \
-							-L$(CACTUS_ROOT)/../UIOuHAL/lib  -Wl,-rpath=$(CACTUS_ROOT)/../UIOuHAL/lib
+							-L$(CACTUS_ROOT)/lib  -Wl,-rpath=$(CACTUS_ROOT)/lib 
 endif
 
-UHAL_CXX_FLAGHS = ${UHAL_INCLUDE_PATH}
+ifdef UIO_UHAL_PATH
+UHAL_INCLUDE_PATH += -isystem$(UIO_UHAL_PATH)/include
+UHAL_LIBRARY_PATH += -L$(UIO_UHAL_PATH)/lib  -Wl,-rpath=$(UIO_UHAL_PATH)/lib
+endif
 
+
+UHAL_CXX_FLAGS = ${UHAL_INCLUDE_PATH}
 UHAL_LIBRARY_FLAGS = ${UHAL_LIBRARY_PATH}
 
 
@@ -150,7 +157,7 @@ install: all
 obj/%.o : src/%.cpp 
 	mkdir -p $(dir $@)
 	mkdir -p {lib,obj}
-	${CXX} ${CXX_FLAGS} ${UHAL_CXX_FLAGHS} -c $< -o $@
+	${CXX} ${CXX_FLAGS} ${UHAL_CXX_FLAGS} -c $< -o $@
 
 
 
