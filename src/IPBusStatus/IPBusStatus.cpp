@@ -1,5 +1,8 @@
 #include <IPBusStatus/IPBusStatus.hh>
+
+#ifdef USE_UIO_UHAL
 #include <ProtocolUIO.hpp>
+#endif
 
 void IPBusStatus::Process(std::string const & singleTable){  
   //Build tables
@@ -31,8 +34,12 @@ void IPBusStatus::Process(std::string const & singleTable){
 	uint32_t val;
 	try{
 	  val = RegReadRegister(*itName);
+#ifdef USE_UIO_UHAL
 	}catch(uhal::exception::UIOBusError & e){
 	  continue;
+#endif
+	}catch(std::exception & e){
+	  throw e;
 	}
 	tables[tableName].Add(*itName,
 			      val,
