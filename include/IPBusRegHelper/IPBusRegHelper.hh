@@ -12,7 +12,7 @@ class IPBusRegHelper:  public IPBusIO, public BUTool::RegisterHelper{
   //need to make local overloads of the RegisterHelper API that call the equivalent functions from IPBusIO.
   //This means that the function names and signatures from IPBusIO don't have to match RegisterHelper, 
   //but let's make life easier and say the must be the same
-public:
+protected:
   std::vector<std::string> myMatchRegex(std::string regex){return IPBusIO::myMatchRegex(regex);};  
   //Misc markups
   uint32_t    GetRegAddress(std::string const & reg){return IPBusIO::GetRegAddress(reg);};
