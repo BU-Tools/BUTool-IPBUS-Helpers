@@ -60,7 +60,7 @@ ifdef MAP_TYPE
 CXX_FLAGS += ${MAP_TYPE}
 endif
 
-LINK_LIBRARY_FLAGS = -shared -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl,${RUNTIME_LDPATH_FLAG} ${COMPILETIME_ROOT}
+LINK_LIBRARY_FLAGS = -shared -Wl,--no-as-needed -fPIC -Wall -g -O3 -rdynamic ${LIBRARY_PATH} ${LIBRARIES} -Wl,${RUNTIME_LDPATH_FLAG} ${COMPILETIME_ROOT}
 
 
 
