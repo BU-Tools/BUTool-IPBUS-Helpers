@@ -2,7 +2,8 @@ SHELL = bash
 
 BUTOOL_PATH?=../../
 
-
+UHAL_VER_MAJOR ?= 2
+UHAL_VER_MINOR ?= 7
 
 CXX?=g++
 ifdef RUNTIME_LDPATH
@@ -54,7 +55,7 @@ INSTALL_PATH ?= ./install
 
 CXX_FLAGS = -std=c++11 -g -O3 -rdynamic -Wall -MMD -MP -fPIC ${INCLUDE_PATH} -Werror -Wno-literal-suffix
 
-CXX_FLAGS +=-fno-omit-frame-pointer -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual ${COMPILETIME_ROOT} ${FALLTHROUGH_FLAGS}
+CXX_FLAGS +=-fno-omit-frame-pointer -Wno-ignored-qualifiers -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wno-unused-local-typedefs  -Woverloaded-virtual -DUHAL_VER_MAJOR=${UHAL_VER_MAJOR} -DUHAL_VER_MINOR=${UHAL_VER_MINOR} ${COMPILETIME_ROOT} ${FALLTHROUGH_FLAGS}
 
 ifdef MAP_TYPE
 CXX_FLAGS += ${MAP_TYPE}
