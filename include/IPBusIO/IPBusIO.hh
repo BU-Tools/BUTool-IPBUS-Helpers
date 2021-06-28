@@ -3,10 +3,10 @@
 
 #include <uhal/uhal.hpp>
 
-#ifdef STD_UNORDERED_MAP
+#if UHAL_VER_MAJOR >= 2 && UHAL_VER_MINOR >= 8
 #include <unordered_map>
 typedef std::unordered_map<std::string, std::string> uMap;
-#else 
+#else
 #include <boost/unordered_map.hpp>
 typedef boost::unordered_map<std::string, std::string> uMap;
 #endif
