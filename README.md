@@ -25,6 +25,8 @@ Check out BUTool from git, then checkout this repo in the BUTool plugins dir.
 
 A "make" for BUTool will then build all subdirectories in the plugins dir. 
 
+Because this plugin depends on uHAL, the variables `UHAL_VER_MAJOR` and `UHAL_VER_MINOR` need to be set in order to ensure compatibility with the version of uHAL that is installed (`2.7.x` or `2.8.x`).
+
 #### DIY
 First you should check out the BUTool source code, build it and source its env.sh script to get the correct enviornment. 
 
