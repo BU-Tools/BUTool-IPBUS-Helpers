@@ -39,12 +39,18 @@ public:
   uint32_t RegReadRegister(std::string const & reg);
   //Node reads
   uint32_t RegReadNode(uhal::Node const & node);
+  //Block reads
+  size_t BlockReadAddress(uint32_t addr, size_t nWords, uint32_t* buffer);
+  size_t BlockReadRegister(std::string const & reg, size_t nWords, uint32_t* buffer);
 
-  //numeric, named register, action, and node writes
+  //numeric, named register, action, block, and node writes
   void RegWriteAddress(uint32_t addr, uint32_t data);
   void RegWriteRegister(std::string const & reg, uint32_t data);
   void RegWriteAction(std::string const & reg);
   void RegWriteNode(uhal::Node const & node, uint32_t data);
+
+  void BlockWriteAddress(uint32_t addr,uint32_t* data,size_t nWords);
+  void BlockWriteRegister(const std::string& reg, size_t nWords, uint32_t* data);
 
   uhal::Node const & GetNode(std::string const & reg);
 protected:
