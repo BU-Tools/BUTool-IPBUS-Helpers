@@ -31,11 +31,11 @@ LIB_IPBUS_STATUS_DEPLIBS = libToolException.so libBUTool_Helpers.so libBUTool_IP
 LIB_IPBUS_STATUS_LDFLAGS = $(patsubt lib%.so/-l%,${LIB_IPBUS_STATUS_DEPLIBS})
 
 
-INCLUDE_PATH = \
+INCLUDE_PATH += \
 							-Iinclude  \
 							-I$(BUTOOL_PATH)/include
 
-LIBRARY_PATH = \
+LIBRARY_PATH += \
 							-Llib \
 							-L$(BUTOOL_PATH)/lib
 
