@@ -3,6 +3,13 @@
 
 #include <uhal/uhal.hpp>
 
+#if UHAL_VER_MAJOR >= 2 && UHAL_VER_MINOR >= 8
+#include <unordered_map>
+typedef std::unordered_map<std::string, std::string> uMap;
+#else
+#include <boost/unordered_map.hpp>
+typedef boost::unordered_map<std::string, std::string> uMap;
+#endif
 
 #include <vector>
 #include <string>
@@ -24,7 +31,7 @@ public:
   std::string GetRegPermissions(std::string const & reg);
   std::string GetRegDescription(std::string const & reg);
   std::string GetRegDebug(std::string const & reg);  
-  const boost::unordered_map<std::string,std::string> & GetParameters(std::string const & reg);
+  const uMap & GetParameters(std::string const & reg);
 
   //numeric reads
   uint32_t RegReadAddress(uint32_t addr);
