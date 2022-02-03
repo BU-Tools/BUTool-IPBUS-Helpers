@@ -29,16 +29,11 @@ protected:
   
   std::string  RegReadConvertFormat(std::string const & reg) {
     // From a given node address, retrieve the "Format" parameter of the node
-    uhal::Node const & node = IPBusIO::GetNode(reg);
-    // From the node object, get the parameters and find the "Format" parameter
-    uMap parameters = node.getParameters();
-    uMap::iterator format = parameters.find("Format");
-    
-    // TODO: Potentially make sure that "Format" parameter is found, 
-    // otherwise throw some exception here
-    // The check would be to assure that: format != parameters.end()
-    
-    return format->second;
+    const uMap parameters = IPBusIO::GetParameters(reg);
+   
+    std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : STATUS_DISPLAY_DEFAULT_FORMAT; 
+ 
+    return format;
   }
 
   uint32_t RegReadAddress(uint32_t addr){return IPBusIO::RegReadAddress(addr);};
