@@ -24,7 +24,22 @@ protected:
   std::string GetRegDebug(std::string const & reg){return IPBusIO::GetRegDebug(reg);};  
 
   ConvertType  RegReadConvertType(std::string const & reg) {
-    uhal::Node const & node = IPBusIO::GetNode(reg);
+    // From a given node address, find the conversion type to apply
+    std::string format = RegReadConvertFormat(reg);
+
+    // Decide on what type of conversion we want to do based on the format string
+    bool convertToFloat = (format.rfind("m_", 0) == 0) | (format == "fp16");
+    bool convertToInt = format == "d";
+    bool convertToUint = format == "u";
+    if (convertToUint) {
+        return 1;
+    }
+    else if (convertToInt) {
+        return 2;
+    }
+    else if (convertToFloat) {
+        return 4;
+    }
   }
   
   std::string  RegReadConvertFormat(std::string const & reg) {
