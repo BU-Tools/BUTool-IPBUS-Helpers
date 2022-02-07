@@ -32,23 +32,26 @@ protected:
     bool convertToInt = format == "d";
     bool convertToUint = format == "u";
     if (convertToUint) {
-        return 1;
+        return UINT;
     }
     else if (convertToInt) {
-        return 2;
+        return INT;
     }
     else if (convertToFloat) {
-        return 4;
+        return FP;
     }
+    return FP;
   }
   
   std::string  RegReadConvertFormat(std::string const & reg) {
     // From a given node address, retrieve the "Format" parameter of the node
     const uMap parameters = IPBusIO::GetParameters(reg);
    
-    std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : STATUS_DISPLAY_DEFAULT_FORMAT; 
+    // std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : STATUS_DISPLAY_DEFAULT_FORMAT; 
+
+    // TODO: Include some check whether the parameter "Format" is found or not
  
-    return format;
+    return parameters.find("Format")->second;
   }
 
   uint32_t RegReadAddress(uint32_t addr){return IPBusIO::RegReadAddress(addr);};
