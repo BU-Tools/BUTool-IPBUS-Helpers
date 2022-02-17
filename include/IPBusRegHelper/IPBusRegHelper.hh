@@ -4,6 +4,7 @@
 #include <BUTool/helpers/register_helper.hh>
 #include <IPBusIO/IPBusIO.hh>
 
+#define DISPLAY_DEFAULT_FORMAT "X"
 
 class IPBusRegHelper:  public IPBusIO, public BUTool::RegisterHelper{
   //This class is a bridge to connect the API for the BUTool reg helpers with the IPBus IO functions.
@@ -47,11 +48,9 @@ protected:
     // From a given node address, retrieve the "Format" parameter of the node
     const uMap parameters = IPBusIO::GetParameters(reg);
    
-    // std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : STATUS_DISPLAY_DEFAULT_FORMAT; 
+    std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : DISPLAY_DEFAULT_FORMAT; 
 
-    // TODO: Include some check whether the parameter "Format" is found or not
- 
-    return parameters.find("Format")->second;
+    return format; 
   }
 
   uint32_t RegReadAddress(uint32_t addr){return IPBusIO::RegReadAddress(addr);};
