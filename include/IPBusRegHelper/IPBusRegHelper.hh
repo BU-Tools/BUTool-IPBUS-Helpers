@@ -43,7 +43,16 @@ protected:
     }
     return FP;
   }
-  
+ 
+  std::string  GetRegParameter(std::string const & reg, std::string const & parameterName) {
+    // From a given node address, retrieve the requested parameter
+    const uMap parameters = IPBusIO::GetParameters(reg);
+    
+    std::string value = (parameters.find(parameterName) != parameters.end()) ? parameters.find(parameterName)->second : "Not found";
+
+    return value; 
+  }
+ 
   std::string  RegReadConvertFormat(std::string const & reg) {
     // From a given node address, retrieve the "Format" parameter of the node
     const uMap parameters = IPBusIO::GetParameters(reg);
