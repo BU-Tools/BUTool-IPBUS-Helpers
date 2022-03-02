@@ -40,11 +40,30 @@ public:
   //Node reads
   uint32_t RegReadNode(uhal::Node const & node);
 
+  // Conversion format
+  std::string RegReadConvertFormat(std::string const & reg);
+ 
+  // Named register read+conversion functions, overloaded depending on the conversion value type
+  void RegReadConvert(std::string const & reg, unsigned int & val);
+  void RegReadConvert(std::string const & reg, int & val);
+  void RegReadConvert(std::string const & reg, double & val); 
+  void RegReadConvert(std::string const & reg, std::string & val);
+
   //numeric, named register, action, and node writes
   void RegWriteAddress(uint32_t addr, uint32_t data);
   void RegWriteRegister(std::string const & reg, uint32_t data);
   void RegWriteAction(std::string const & reg);
   void RegWriteNode(uhal::Node const & node, uint32_t data);
+
+  // Helper functions for converting
+  double ConvertFloatingPoint16ToDouble(std::string const & reg);
+  double ConvertLinear11ToDouble(std::string const & reg);
+  double ConvertIntegerToDouble(std::string const & reg, std::string const & format);
+  std::string ConvertEnumToString(std::string const & reg, std::string const & format);
+  std::string ConvertIPAddressToString(std::string const & reg);
+
+  // Helper function to return list of register names with a specified parameter
+  std::vector<std::string> GetRegisterNamesFromTable(std::string const & tableName);
 
   uhal::Node const & GetNode(std::string const & reg);
 protected:
