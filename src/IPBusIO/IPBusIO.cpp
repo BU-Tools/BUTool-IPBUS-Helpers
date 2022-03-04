@@ -316,6 +316,24 @@ std::string IPBusIO::RegReadConvertFormat(std::string const & reg){
   return format; 
 }
 
+IPBusIO::ConvertType IPBusIO::RegReadConvertType(std::string const & reg){
+  // Return the conversion type
+  std::string format = RegReadConvertFormat(reg);
+  if ((format[0] == 'T') || (format[0] == 't') || iequals(format, std::string("IP")) || iequals(format, "X")) {
+    return STRING;
+  }
+  if ((format[0] == 'M') | (format[0] == 'm') | (format == "fp16")) {
+    return FP;
+  }
+  if ((format.size() == 1) & (format[0] == 'd')) {
+    return INT;
+  }
+  if ((format.size() == 1) & (format[0] == 'u')) {
+    return UINT;
+  }
+  return NONE;
+}
+
 void IPBusIO::RegReadConvert(std::string const & reg, unsigned int & val){
   // Read the value from the named register, and update the value in place
   uint32_t rawVal = RegReadRegister(reg);
