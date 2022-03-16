@@ -65,7 +65,7 @@ public:
   std::string ConvertIPAddressToString(std::string const & reg);
 
   // Helper function to return list of register names with a specified parameter
-  std::vector<std::string> GetRegisterNamesFromTable(std::string const & tableName);
+  std::vector<std::string> GetRegisterNamesFromTable(std::string const & tableName, int statusLevel=9);
 
   uhal::Node const & GetNode(std::string const & reg);
 protected:

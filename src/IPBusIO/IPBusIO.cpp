@@ -291,7 +291,7 @@ std::string IPBusIO::ConvertEnumToString(std::string const & reg, std::string co
   return "NOT_FOUND";
 }
 
-std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & tableName){ 
+std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & tableName, int statusLevel){ 
   // Helper function to get a list of register names from a given table name 
   std::vector<std::string> registerNames;
 
@@ -301,7 +301,11 @@ std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & 
   for (size_t idx=0; idx < allNames.size(); idx++) {
     const uMap parameters = GetParameters(allNames[idx]);
     const std::string table = (parameters.find("Table") != parameters.end()) ? parameters.find("Table")->second : "Not found";
+    const int status = (parameters.find("Status") != parameters.end()) ? std::stoi(parameters.find("Status")->second) : -1;
     if (table == tableName) {
+      // Check the status level, if statusLevel < status,
+      // we are not going to return this register
+      if (statusLevel < status) { continue; }
       registerNames.push_back(allNames[idx]);
     }
   }
