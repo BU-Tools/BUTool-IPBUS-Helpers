@@ -299,11 +299,15 @@ std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & 
   for (size_t idx=0; idx < allNames.size(); idx++) {
     const uMap parameters = GetParameters(allNames[idx]);
     const std::string table = (parameters.find("Table") != parameters.end()) ? parameters.find("Table")->second : "Not found";
-    const int status = (parameters.find("Status") != parameters.end()) ? std::stoi(parameters.find("Status")->second) : -1;
     if (table == tableName) {
       // Check the status level, if statusLevel < status,
       // we are not going to return this register
+      const int status = (parameters.find("Status") != parameters.end()) ? std::stoi(parameters.find("Status")->second) : -1;
       if (statusLevel < status) { continue; }
+
+      // Check the format, if there is no format string, skip listing this register
+      if (parameters.find("Format") == parameters.end()) { continue; }
+
       registerNames.push_back(allNames[idx]);
     }
   }
