@@ -12,8 +12,6 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#define DISPLAY_DEFAULT_FORMAT "X"
-
 using boost::algorithm::iequals;
 
 inline void CheckHW(uhal::HwInterface * const * hw){
@@ -316,7 +314,7 @@ std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & 
 std::string IPBusIO::RegReadConvertFormat(std::string const & reg){
   // From a given node address, retrieve the "Format" parameter of the node
   const uMap parameters = GetParameters(reg);
-  std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : DISPLAY_DEFAULT_FORMAT;
+  std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : "none";
   return format; 
 }
 
