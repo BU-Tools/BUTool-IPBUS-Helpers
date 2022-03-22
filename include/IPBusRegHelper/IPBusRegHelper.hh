@@ -6,6 +6,8 @@
 
 #define DISPLAY_DEFAULT_FORMAT "X"
 
+using boost::algorithm::iequals;
+
 class IPBusRegHelper:  public IPBusIO, public BUTool::RegisterHelper{
   //This class is a bridge to connect the API for the BUTool reg helpers with the IPBus IO functions.
   //This gets its API from the RegisterHelper so that BUTool gets a consistant set of commands for free.
@@ -24,24 +26,25 @@ protected:
   std::string GetRegDescription(std::string const & reg){return IPBusIO::GetRegDescription(reg);};
   std::string GetRegDebug(std::string const & reg){return IPBusIO::GetRegDebug(reg);};  
 
-  ConvertType  RegReadConvertType(std::string const & reg) {
+  std::string RegReadConvertFormat(std::string const & reg){return IPBusIO::RegReadConvertFormat(reg);};
+
+  BUTool::RegisterHelper::ConvertType  RegReadConvertType(std::string const & reg) {
     // From a given node address, find the conversion type to apply
     std::string format = RegReadConvertFormat(reg);
 
-    // Decide on what type of conversion we want to do based on the format string
-    bool convertToFloat = (format.rfind("m_", 0) == 0) | (format == "fp16");
-    bool convertToInt = format == "d";
-    bool convertToUint = format == "u";
-    if (convertToUint) {
-        return UINT;
+    if ((format[0] == 'T') || (format[0] == 't') || iequals(format, std::string("IP")) || iequals(format, "X")) {
+      return BUTool::RegisterHelper::STRING;
     }
-    else if (convertToInt) {
-        return INT;
+    if ((format[0] == 'M') | (format[0] == 'm') | (format == "fp16")) {
+      return BUTool::RegisterHelper::FP;
     }
-    else if (convertToFloat) {
-        return FP;
+    if ((format.size() == 1) & (format[0] == 'd')) {
+      return BUTool::RegisterHelper::INT;
     }
-    return FP;
+    if ((format.size() == 1) & (format[0] == 'u')) {
+      return BUTool::RegisterHelper::UINT;
+    }
+    return BUTool::RegisterHelper::NONE;
   }
  
   std::string  GetRegParameter(std::string const & reg, std::string const & parameterName) {
@@ -53,15 +56,6 @@ protected:
     return value; 
   }
  
-  std::string  RegReadConvertFormat(std::string const & reg) {
-    // From a given node address, retrieve the "Format" parameter of the node
-    const uMap parameters = IPBusIO::GetParameters(reg);
-   
-    std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : DISPLAY_DEFAULT_FORMAT; 
-
-    return format; 
-  }
-
   uint32_t RegReadAddress(uint32_t addr){return IPBusIO::RegReadAddress(addr);};
   //Named register reads
   uint32_t RegReadRegister(std::string const & reg){return IPBusIO::RegReadRegister(reg);};
