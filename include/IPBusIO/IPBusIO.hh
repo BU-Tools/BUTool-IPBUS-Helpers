@@ -15,43 +15,48 @@ typedef boost::unordered_map<std::string, std::string> uMap;
 #include <string>
 #include <stdint.h>
 
+#include <RegisterHelper/RegisterHelperIO.hh>
+
 //This class is an interface between the fundamental software library and what we want to use in our hardware class and the butool
 //Right now this uses a dumb block/fifo read instead of the efficient calls built into IPBus.  
 //These should be overloaded eventually and done so to work with the API from the BUTool Register Helper
-class IPBusIO{
+class IPBusIO : public BUTool::RegisterHelperIO {
 public:
-  IPBusIO();
+  IPBusIO(std::shared_ptr<uhal::HwInterface> hw);
   virtual ~IPBusIO(){};
-  std::vector<std::string> myMatchRegex(std::string regex);  
+  virtual std::vector<std::string> myMatchRegex(std::string regex);  
   //Misc markups
-  uint32_t GetRegAddress(std::string const & reg);
-  uint32_t GetRegMask(std::string const & reg);
-  uint32_t GetRegSize(std::string const & reg);
-  std::string GetRegMode(std::string const & reg);
-  std::string GetRegPermissions(std::string const & reg);
-  std::string GetRegDescription(std::string const & reg);
-  std::string GetRegDebug(std::string const & reg);  
-  const uMap & GetParameters(std::string const & reg);
+  virtual uint32_t GetRegAddress        (std::string const & reg);
+  virtual uint32_t GetRegMask           (std::string const & reg);
+  virtual uint32_t GetRegSize           (std::string const & reg);
+  virtual std::string GetRegMode        (std::string const & reg);
+  virtual std::string GetRegPermissions (std::string const & reg);
+  virtual std::string GetRegDescription (std::string const & reg);
+  virtual std::string GetRegDebug       (std::string const & reg);  
+  const uMap & GetParameters            (std::string const & reg);
 
   //numeric reads
-  uint32_t RegReadAddress(uint32_t addr);
+  virtual uint32_t ReadAddress          (uint32_t addr);
   //Named register reads
-  uint32_t RegReadRegister(std::string const & reg);
+  virtual uint32_t ReadRegister         (std::string const & reg);
+  //String read
+  std::string ReadString                (std::string const & reg);
   //Node reads
-  uint32_t RegReadNode(uhal::Node const & node);
+  uint32_t ReadNode                     (uhal::Node const & node);
 
   //numeric, named register, action, and node writes
-  void RegWriteAddress(uint32_t addr, uint32_t data);
-  void RegWriteRegister(std::string const & reg, uint32_t data);
-  void RegWriteAction(std::string const & reg);
-  void RegWriteNode(uhal::Node const & node, uint32_t data);
-
-  uhal::Node const & GetNode(std::string const & reg);
+  virtual void WriteAddress             (uint32_t addr, uint32_t data);
+  virtual void WriteRegister            (std::string const & reg, uint32_t data);
+  virtual void WriteAction              (std::string const & reg);
+  virtual void WriteNode                (uhal::Node const & node, uint32_t data);
+			                
+  uhal::Node const & GetNode            (std::string const & reg);
 protected:
-  void SetHWInterface(uhal::HwInterface * const * _hw);
+  void SetHWInterface(std::shared_ptr<uhal::HwInterface> _hw);
 
 private:
-  //This is a const pointer to a pointer to a HWInterface so that the connection class controls it. 
-  uhal::HwInterface * const * hw;  
+  IPBusIO(); //do not implement
+  //This is a const pointer to a pointer to a HWInterface so that the connection class controls it.
+  std::shared_ptr<uhal::HwInterface> hw;
 };
 #endif

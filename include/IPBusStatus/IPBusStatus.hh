@@ -11,9 +11,9 @@ typedef std::unordered_map<std::string, std::string> uMap;
 #include <boost/unordered_map.hpp>
 typedef boost::unordered_map<std::string, std::string> uMap;
 #endif
-class IPBusStatus: public IPBusIO, public BUTool::StatusDisplay {
+class IPBusStatus: public BUTool::StatusDisplay {
 public:
-  IPBusStatus(uhal::HwInterface * const * _hw){SetHWInterface(_hw);};
+  IPBusStatus(IPBusIO * _regIO);
   ~IPBusStatus(){};
 private:
   IPBusStatus();

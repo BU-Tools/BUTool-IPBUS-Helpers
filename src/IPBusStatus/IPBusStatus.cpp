@@ -4,18 +4,22 @@
 #include <ProtocolUIO.hpp>
 #endif
 
+IPBusStatus::IPBusStatus(IPBusIO * _regIO):
+  StatusDisplay( (BUTool::RegisterHelperIO*) _regIO){
+};
+
 void IPBusStatus::Process(std::string const & singleTable){  
   //Build tables
-  std::vector<std::string> Names = myMatchRegex("*");
+  std::vector<std::string> Names = regIO->myMatchRegex("*");
   //process all the nodes and build table structure
   for(std::vector<std::string>::iterator itName = Names.begin();
       itName != Names.end();
       itName++){
-    //Get the list of parameters for this node
-    uMap parameters = GetParameters(*itName);
+    //Get the list of parameters for this node (this is only in IPBusIO
+    uMap parameters = ((IPBusIO*) regIO)->GetParameters(*itName);
 
     //In IPBus the description is separate, so we add it to parameters here
-    parameters["Description"] = GetRegDescription(*itName);
+    parameters["Description"] = regIO->GetRegDescription(*itName);
 
     if(parameters.size() != 0){      
       for(uMap::iterator itTable = parameters.begin();
@@ -33,7 +37,7 @@ void IPBusStatus::Process(std::string const & singleTable){
       if( singleTable.empty() || TableNameCompare(tableName,singleTable)){
 	uint32_t val;
 	try{
-	  val = RegReadRegister(*itName);
+	  val = regIO->ReadRegister(*itName);
 #ifdef USE_UIO_UHAL
 	}catch(uhal::exception::UIOBusError & e){
 	  continue;
@@ -43,7 +47,7 @@ void IPBusStatus::Process(std::string const & singleTable){
 	}
 	tables[tableName].Add(*itName,
 			      val,
-			      GetRegMask(*itName),
+			      regIO->GetRegMask(*itName),
 			      parameters);	
       }
     }
