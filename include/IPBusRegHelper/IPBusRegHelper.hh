@@ -36,10 +36,10 @@ protected:
     if ((format[0] == 'M') || (format[0] == 'm') || (format == "fp16")) {
       return BUTool::RegisterHelper::FP;
     }
-    if ((format.size() == 1) & (format[0] == 'd')) {
+    if ((format.size() == 1) && (format[0] == 'd')) {
       return BUTool::RegisterHelper::INT;
     }
-    if ((format.size() == 1) & (format[0] == 'u')) {
+    if ((format.size() == 1) && (format[0] == 'u')) {
       return BUTool::RegisterHelper::UINT;
     }
     return BUTool::RegisterHelper::NONE;
