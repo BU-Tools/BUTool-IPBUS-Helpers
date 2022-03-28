@@ -325,7 +325,7 @@ std::string IPBusIO::RegReadConvertFormat(std::string const & reg){
 IPBusIO::ConvertType IPBusIO::RegReadConvertType(std::string const & reg){
   // Return the conversion type
   std::string format = RegReadConvertFormat(reg);
-  if ((format[0] == 'T') || (format[0] == 't') || iequals(format, std::string("IP")) || iequals(format, "X")) {
+  if ((format[0] == 'T') || (format[0] == 't') || ( iequals(format, std::string("IP")) ) || ( iequals(format, "X")) ) {
     return STRING;
   }
   if ((format[0] == 'M') | (format[0] == 'm') | (format == "fp16")) {

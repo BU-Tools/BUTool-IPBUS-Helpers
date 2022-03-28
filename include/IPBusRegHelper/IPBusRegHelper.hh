@@ -30,7 +30,7 @@ protected:
     // From a given node address, find the conversion type to apply
     std::string format = RegReadConvertFormat(reg);
 
-    if ((format[0] == 'T') || (format[0] == 't') || iequals(format, std::string("IP")) || iequals(format, "X")) {
+    if ((format[0] == 'T') || (format[0] == 't') || ( iequals(format, std::string("IP")) ) || ( iequals(format, "X")) ) {
       return BUTool::RegisterHelper::STRING;
     }
     if ((format[0] == 'M') || (format[0] == 'm') || (format == "fp16")) {
