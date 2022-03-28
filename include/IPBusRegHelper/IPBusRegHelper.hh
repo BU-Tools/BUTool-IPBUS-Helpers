@@ -4,8 +4,6 @@
 #include <BUTool/helpers/register_helper.hh>
 #include <IPBusIO/IPBusIO.hh>
 
-#define DISPLAY_DEFAULT_FORMAT "X"
-
 using boost::algorithm::iequals;
 
 class IPBusRegHelper:  public IPBusIO, public BUTool::RegisterHelper{
@@ -35,7 +33,7 @@ protected:
     if ((format[0] == 'T') || (format[0] == 't') || iequals(format, std::string("IP")) || iequals(format, "X")) {
       return BUTool::RegisterHelper::STRING;
     }
-    if ((format[0] == 'M') | (format[0] == 'm') | (format == "fp16")) {
+    if ((format[0] == 'M') || (format[0] == 'm') || (format == "fp16")) {
       return BUTool::RegisterHelper::FP;
     }
     if ((format.size() == 1) & (format[0] == 'd')) {
