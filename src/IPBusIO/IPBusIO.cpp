@@ -325,16 +325,37 @@ std::string IPBusIO::RegReadConvertFormat(std::string const & reg){
 IPBusIO::ConvertType IPBusIO::RegReadConvertType(std::string const & reg){
   // Return the conversion type
   std::string format = RegReadConvertFormat(reg);
+
+  const uMap parameters = GetParameters(reg);
+  std::string displayRule = (parameters.find("Show") != parameters.end()) ? parameters.find("Show")->second : "";
+
   if ((format[0] == 'T') || (format[0] == 't') || ( iequals(format, std::string("IP")) ) || ( iequals(format, "X")) ) {
     return STRING;
   }
   if ((format[0] == 'M') | (format[0] == 'm') | (format == "fp16")) {
+    if (displayRule == "") { return FP; }
+    // If there is a display rule, we have to check whether this value is zero/non-zero,
+    // and return FP or NODISPLAY according to the value in the register and the display rule.
+    double val;
+    RegReadConvert(reg, val);
+    if ((val == 0) && (displayRule == "nz")) { return NODISPLAY; }
+    if ((val != 0) && (displayRule == "z" )) { return NODISPLAY; }
     return FP;
   }
   if ((format.size() == 1) & (format[0] == 'd')) {
+    if (displayRule == "") { return INT; }
+    int val;
+    RegReadConvert(reg, val);
+    if ((val == 0) && (displayRule == "nz")) { return NODISPLAY; }
+    if ((val != 0) && (displayRule == "z" )) { return NODISPLAY; }
     return INT;
   }
   if ((format.size() == 1) & (format[0] == 'u')) {
+    if (displayRule == "") { return UINT; }
+    unsigned int val;
+    RegReadConvert(reg, val);
+    if ((val == 0) && (displayRule == "nz")) { return NODISPLAY; }
+    if ((val != 0) && (displayRule == "z" )) { return NODISPLAY; }
     return UINT;
   }
   return NONE;
