@@ -11,7 +11,7 @@ public:
   virtual ~IPBusConnection();
 
   void Connect(std::vector<std::string> const & args);
-  std::shared_ptr<uhal::HwInterface> GetHWInterface();//Get a const pointer to a pointer to a HW device so this class is still in control of that data.
+  std::shared_ptr<uhal::HwInterface> GetHWInterface(){return hw;};//Get a const pointer to a pointer to a HW device so this class is still in control of that data.
 
   //The IPBus connection and read/write functions come from the IPBusIO class.
   //Look there for the details. 
