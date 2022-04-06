@@ -2,7 +2,7 @@
 #define __IPBUS_STATUS_HH__
 
 #include <IPBusIO/IPBusIO.hh>
-#include <BUTool/helpers/StatusDisplay/StatusDisplay.hh>
+#include <StatusDisplay/StatusDisplay.hh>
 
 #if UHAL_VER_MAJOR >= 2 && UHAL_VER_MINOR >= 8
 #include <unordered_map>

@@ -1,8 +1,9 @@
 #include <IPBusRegHelper.hh>
 
-IPBusRegHelper::IPBusRegHelper(std::shared_ptr<IPBusIO> _regIO) :
+IPBusRegHelper::IPBusRegHelper(std::shared_ptr<IPBusIO> _regIO,
+			       std::shared_ptr<BUTextIO> _textIO) :
   //Recast the IPBusIO to its base class 
-  RegisterHelper(std::shared_ptr<RegIO>(regIO)) {
+  RegisterHelper(std::shared_ptr<RegIO>(regIO),_textIO) {
 }
 
 std::shared_ptr<IPBusIO> & IPBusRegHelper::GetRegIO(){

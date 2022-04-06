@@ -7,7 +7,8 @@
 
 class IPBusRegHelper: public BUTool::RegisterHelper{
 public:
-  IPBusRegHelper(std::shared_ptr<IPBusIO> _regIO);
+  IPBusRegHelper(std::shared_ptr<IPBusIO> _regIO,
+		 std::shared_ptr<BUTextIO> _textIO);
   //This class is a bridge to connect the API for the BUTool reg helpers with the IPBus IO functions.
   //This gets its API from the RegisterHelper so that BUTool gets a consistant set of commands for free.
   //The implementation of these functions is taken from the IPBusIO class, but for the inheritance to work, we 

@@ -5,7 +5,7 @@
 #endif
 
 IPBusStatus::IPBusStatus(IPBusIO * _regIO):
-  StatusDisplay( (BUTool::RegisterHelperIO*) _regIO){
+  StatusDisplay(dynamic_cast<BUTool::RegisterHelperIO*>(_regIO)){
 };
 
 void IPBusStatus::Process(std::string const & singleTable){  
@@ -16,7 +16,7 @@ void IPBusStatus::Process(std::string const & singleTable){
       itName != Names.end();
       itName++){
     //Get the list of parameters for this node (this is only in IPBusIO
-    uMap parameters = ((IPBusIO*) regIO)->GetParameters(*itName);
+    uMap parameters = dynamic_cast<IPBusIO*>(regIO)->GetParameters(*itName);
 
     //In IPBus the description is separate, so we add it to parameters here
     parameters["Description"] = regIO->GetRegDescription(*itName);
