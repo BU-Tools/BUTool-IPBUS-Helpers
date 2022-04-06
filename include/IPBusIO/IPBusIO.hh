@@ -41,7 +41,7 @@ public:
   uint32_t RegReadNode(uhal::Node const & node);
 
   // Conversion format
-  enum ConvertType {NONE=0, UINT=1, INT=2, FP=4, STRING=8, NODISPLAY=16};
+  enum ConvertType {NONE=0, UINT=1, INT=2, FP=4, STRING=8};
   ConvertType RegReadConvertType(std::string const & reg);
   std::string RegReadConvertFormat(std::string const & reg);
  
