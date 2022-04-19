@@ -305,8 +305,11 @@ std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & 
       const int status = (parameters.find("Status") != parameters.end()) ? std::stoi(parameters.find("Status")->second) : -1;
       if (statusLevel < status) { continue; }
 
-      // Check the format, if there is no format string, skip listing this register
-      if (parameters.find("Format") == parameters.end()) { continue; }
+      // Check if "Row" and "Column" parameters exist in this node
+      // If not, we will skip this register
+      // All registers displayed on SHEP UI must have "Table", "Row" and "Column" attributes specified!
+      if (parameters.find("Row") == parameters.end())    { continue; }
+      if (parameters.find("Column") == parameters.end()) { continue; }
 
       registerNames.push_back(allNames[idx]);
     }
@@ -318,7 +321,7 @@ std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & 
 std::string IPBusIO::RegReadConvertFormat(std::string const & reg){
   // From a given node address, retrieve the "Format" parameter of the node
   const uMap parameters = GetParameters(reg);
-  std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : "none";
+  std::string format = (parameters.find("Format") != parameters.end()) ? parameters.find("Format")->second : IPBUSIO_DEFAULT_DISPLAY_FORMAT;
   return format; 
 }
 

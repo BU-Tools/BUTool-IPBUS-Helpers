@@ -15,6 +15,8 @@ typedef boost::unordered_map<std::string, std::string> uMap;
 #include <string>
 #include <stdint.h>
 
+#define IPBUSIO_DEFAULT_DISPLAY_FORMAT "X"
+
 //This class is an interface between the fundamental software library and what we want to use in our hardware class and the butool
 //Right now this uses a dumb block/fifo read instead of the efficient calls built into IPBus.  
 //These should be overloaded eventually and done so to work with the API from the BUTool Register Helper
