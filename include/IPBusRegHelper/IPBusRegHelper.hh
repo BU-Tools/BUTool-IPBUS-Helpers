@@ -16,7 +16,6 @@ public:
   //This means that the function names and signatures from IPBusIO don't have to match RegisterHelper, 
   //but let's make life easier and say the must be the same
 protected:
-
   std::shared_ptr<IPBusIO> GetRegIO();
     
   

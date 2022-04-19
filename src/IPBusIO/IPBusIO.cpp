@@ -3,6 +3,16 @@
 #include <IPBusIO/IPBusIO.hh>
 #include <IPBusIO/IPBusExceptions.hh>
 
+#include <stdlib.h> //strtoul
+#include <map> //map
+#include <math.h> // for NAN
+#include <cmath> // for pow
+#include <arpa/inet.h> // for inet_ntoa and in_addr_t
+
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+using boost::algorithm::iequals;
 
 std::string IPBusIO::ReadString(std::string const & reg){
     uhal::Node const & node = GetNode(reg);
@@ -40,7 +50,7 @@ static void ReplaceStringInPlace(std::string& subject,
 
 
 
-std::vector<std::string> IPBusIO::myMatchRegex(std::string regex){
+std::vector<std::string> IPBusIO::GetRegsRegex(std::string regex){
   std::string rx = regex;
 
   if( rx.size() > 6 && rx.substr(0,5) == "PERL:") {
@@ -98,6 +108,109 @@ uint32_t IPBusIO::ReadNode(uhal::Node const & node){
   }
 
   return vw.value();
+}
+
+std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & tableName, int statusLevel){ 
+  // Helper function to get a list of register names from a given table name 
+  std::vector<std::string> registerNames;
+
+  // All register names
+  std::vector<std::string> allNames = GetRegsRegex("*");
+
+  for (size_t idx=0; idx < allNames.size(); idx++) {
+    const uMap parameters = GetParameters(allNames[idx]);
+    const std::string table = (parameters.find("Table") != parameters.end()) ? parameters.find("Table")->second : "Not found";
+    if (table == tableName) {
+      // Check the status level, if statusLevel < status,
+      // we are not going to return this register
+      const int status = (parameters.find("Status") != parameters.end()) ? std::stoi(parameters.find("Status")->second) : -1;
+      if (statusLevel < status) { continue; }
+
+      // Check the format, if there is no format string, skip listing this register
+      if (parameters.find("Format") == parameters.end()) { continue; }
+
+      registerNames.push_back(allNames[idx]);
+    }
+  }
+
+  return registerNames;
+}
+
+
+void IPBusIO::ReadConvert(std::string const & reg, unsigned int & val){
+  // Read the value from the named register, and update the value in place
+  uint32_t rawVal = ReadRegister(reg);
+  val = rawVal;
+}
+
+void IPBusIO::ReadConvert(std::string const & reg, int & val){
+  // Read the value from the named register, and update the value in place
+  uint32_t rawVal = ReadRegister(reg);
+
+  // Now comes the check:
+  // -55 is a placeholder for non-running fireflies
+  // That would mean rawVal 256 + (-55) = 201 since the raw value is an unsigned int
+  // We'll transform and return that value, in other cases our job is easier
+  int MAX_8_BIT_INT = 256;
+  if (rawVal == 201) {
+    val = -(int)(MAX_8_BIT_INT - rawVal);
+    return;
+  }
+  val = (int)rawVal;
+ 
+}
+
+void IPBusIO::ReadConvert(std::string const & reg, double & val){
+  // Read the value from the named register, and update the value in place
+  // Check the conversion type we want:
+  // Is it a "fp16", or will we do some transformations? (i.e."m_...")
+  std::string format = GetConvertFormat(reg);
+  // 16-bit floating point to double transformation
+  if (iequals(format, "fp16")) {
+    val = ConvertFloatingPoint16ToDouble(reg);
+  }
+  
+  // Need to do some arithmetic to transform
+  else if ((format[0] == 'M') | (format[0] == 'm')) {
+    val = ConvertIntegerToDouble(reg, format);
+  }
+
+  else if (iequals(format, "linear11")) {
+    val = ConvertLinear11ToDouble(reg);
+  }
+
+  // Undefined format, throw error
+  else {
+    BUException::FORMATTING_NOT_IMPLEMENTED e;
+    e.Append("Format: " + format);
+    e.Append("\n");
+    throw e;
+  }
+}
+
+void IPBusIO::ReadConvert(std::string const & reg, std::string & val){
+  // Read the value from the named register, and update the value in place
+  std::string format = GetConvertFormat(reg);
+  
+  if ((format.size() > 1) && (('t' == format[0]) || ('T' == format[0]))) {
+    val = ConvertEnumToString(reg, format);
+  }
+  // IP addresses
+  else if (iequals(format, std::string("IP"))) {
+    val = ConvertIPAddressToString(reg);
+  }
+  // Hex numbers in string
+  else if (iequals(format, "x")) {
+    val = ReadRegister(reg);
+  }
+  // Undefined format, throw error
+  else {
+    BUException::FORMATTING_NOT_IMPLEMENTED e;
+    e.Append("Format: " + format);
+    e.Append("\n");
+    throw e;
+  }
+
 }
 
 void IPBusIO::WriteAction(std::string const & reg){
@@ -226,3 +339,5 @@ const uMap & IPBusIO::GetParameters(std::string const & reg){
 uhal::Node const & IPBusIO::GetNode(std::string const & reg){
    return hw->getNode(reg);
 }
+
+

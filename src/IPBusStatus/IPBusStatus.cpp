@@ -10,7 +10,7 @@ IPBusStatus::IPBusStatus(IPBusIO * _regIO):
 
 void IPBusStatus::Process(std::string const & singleTable){  
   //Build tables
-  std::vector<std::string> Names = regIO->myMatchRegex("*");
+  std::vector<std::string> Names = regIO->GetRegsRegex("*");
   //process all the nodes and build table structure
   for(std::vector<std::string>::iterator itName = Names.begin();
       itName != Names.end();

@@ -24,25 +24,36 @@ class IPBusIO : public BUTool::RegisterHelperIO {
 public:
   IPBusIO(std::shared_ptr<uhal::HwInterface> hw);
   virtual ~IPBusIO(){};
-  virtual std::vector<std::string> myMatchRegex(std::string regex);  
+
+  // Register search
+  virtual std::vector<std::string> GetRegsRegex(std::string regex);
+
+  //reads
+  virtual uint32_t    ReadAddress       (uint32_t addr);
+  virtual uint32_t    ReadRegister      (std::string const & reg);
+  virtual std::string ReadString        (std::string const & reg);
+  uint32_t ReadNode                     (uhal::Node const & node);
+
+  
   //Misc markups
-  virtual uint32_t GetRegAddress        (std::string const & reg);
-  virtual uint32_t GetRegMask           (std::string const & reg);
-  virtual uint32_t GetRegSize           (std::string const & reg);
+  virtual uint32_t    GetRegAddress     (std::string const & reg);
+  virtual uint32_t    GetRegMask        (std::string const & reg);
+  virtual uint32_t    GetRegSize        (std::string const & reg);
   virtual std::string GetRegMode        (std::string const & reg);
   virtual std::string GetRegPermissions (std::string const & reg);
   virtual std::string GetRegDescription (std::string const & reg);
   virtual std::string GetRegDebug       (std::string const & reg);  
-  const uMap & GetParameters            (std::string const & reg);
+  const uMap &        GetParameters     (std::string const & reg);
 
-  //numeric reads
-  virtual uint32_t ReadAddress          (uint32_t addr);
-  //Named register reads
-  virtual uint32_t ReadRegister         (std::string const & reg);
-  //String read
-  std::string ReadString                (std::string const & reg);
-  //Node reads
-  uint32_t ReadNode                     (uhal::Node const & node);
+
+
+
+ 
+  // Named register read+conversion functions, overloaded depending on the conversion value type
+  void ReadConvert(std::string const & reg, unsigned int & val);
+  void ReadConvert(std::string const & reg, int & val);
+  void ReadConvert(std::string const & reg, double & val); 
+  void ReadConvert(std::string const & reg, std::string & val);
 
   //numeric, named register, action, and node writes
   virtual void WriteAddress             (uint32_t addr, uint32_t data);
@@ -51,6 +62,10 @@ public:
   virtual void WriteNode                (uhal::Node const & node, uint32_t data);
 			                
   uhal::Node const & GetNode            (std::string const & reg);
+
+  // Helper function to return list of register names with a specified parameter
+  std::vector<std::string> GetRegisterNamesFromTable(std::string const & tableName, int statusLevel=1);
+
 protected:
   void SetHWInterface(std::shared_ptr<uhal::HwInterface> _hw);
 
