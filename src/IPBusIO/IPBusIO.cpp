@@ -340,4 +340,36 @@ uhal::Node const & IPBusIO::GetNode(std::string const & reg){
    return hw->getNode(reg);
 }
 
+#if UHAL_VER_MAJOR >= 2 && UHAL_VER_MINOR < 8
+std::unordered_map<std::string,std::string> notsafeMapForuHAL27;
+#endif
 
+std::unordered_map<std::string,std::string> const & IPBusIO::GetRegParameters(std::string const & reg){
+#if UHAL_VER_MAJOR >= 2 && UHAL_VER_MINOR >= 8
+  return GetParameters(reg);
+#else
+  //not thread safe!!!!    
+  auto params = GetParameters(reg);
+  notsafeMapForuHAL27.clear();
+  for( auto itReg = params.begin();
+       itReg != params.end();
+       itReg++){
+    notsafeMapForuHAL27[itReg->first] = itReg->second;
+  }
+  return notsafeMapForuHAL27;
+#endif
+}
+std::string IPBusIO::GetRegParameterValue(std::string const & reg, std::string const & name){
+  auto regPar = GetParameters(reg);
+  auto itPar = regPar.find(name);
+  if(itPar == regPar.end()){
+    BUException::BAD_REG_NAME e;
+    e.Append("reg ");
+    e.Append(reg);
+    e.Append(" parameter ");
+    e.Append(name);
+    e.Append(" not found!");
+    throw e;
+  }
+  return itPar->second;
+}

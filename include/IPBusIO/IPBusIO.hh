@@ -43,6 +43,8 @@ public:
   virtual std::string GetRegPermissions (std::string const & reg);
   virtual std::string GetRegDescription (std::string const & reg);
   virtual std::string GetRegDebug       (std::string const & reg);  
+  virtual std::unordered_map<std::string,std::string> const & GetRegParameters(std::string const & reg);
+  virtual std::string GetRegParameterValue(std::string const & reg, std::string const & name);
   const uMap &        GetParameters     (std::string const & reg);
 
 
