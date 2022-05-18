@@ -1,9 +1,5 @@
 #include <IPBusStatus/IPBusStatus.hh>
 
-#ifdef USE_UIO_UHAL
-#include <ProtocolUIO.hpp>
-#endif
-
 IPBusStatus::IPBusStatus(IPBusIO * _regIO):
   StatusDisplay(dynamic_cast<BUTool::RegisterHelperIO*>(_regIO)){
 };

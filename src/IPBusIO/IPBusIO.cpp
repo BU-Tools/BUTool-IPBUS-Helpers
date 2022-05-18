@@ -12,6 +12,10 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+#ifdef USE_UIO_UHAL
+#include "ProtocolUIO.hpp"
+#endif
+
 using boost::algorithm::iequals;
 
 std::string IPBusIO::ReadString(std::string const & reg){
