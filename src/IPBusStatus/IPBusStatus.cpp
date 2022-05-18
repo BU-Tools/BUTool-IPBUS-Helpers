@@ -32,10 +32,6 @@ void IPBusStatus::Process(std::string const & singleTable){
         // Add the register to the given table, with a pointer to a RegHelperIO
         // class to read values later.
         tables[tableName].Add(*itName, regIO, parameters);
-        // tables[tableName].Add(*itName,
-        // 		      val,
-        // 		      regIO->GetRegMask(*itName),
-        // 		      parameters);	
       }
     }
   }

@@ -76,6 +76,14 @@ uint32_t IPBusIO::ReadAddress(uint32_t addr){
     snprintf(str_addr,11,"0x%08X",addr);
     e2.Append(str_addr);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    char str_addr[] = "0xXXXXXXXX";
+    snprintf(str_addr,11,"0x%08X",addr);
+    e2.Append(str_addr);
+    throw e2;
+  #endif
   }
 
   return vw.value();
@@ -93,6 +101,12 @@ uint32_t IPBusIO::ReadRegister(std::string const & reg){
     BUException::BAD_REG_NAME e2;
     e2.Append(reg);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append(reg);
+    throw e2;
+  #endif
   }
   return ret.value();
 }
@@ -105,6 +119,12 @@ uint32_t IPBusIO::ReadNode(uhal::Node const & node){
     BUException::REG_READ_DENIED e2;    
     e2.Append("failed Node read");
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append("failed Node read");
+    throw e2;
+  #endif
   }
 
   return vw.value();
@@ -228,6 +248,12 @@ void IPBusIO::WriteAction(std::string const & reg){
     BUException::REG_WRITE_DENIED e2;
     e2.Append(reg);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append(reg);
+    throw e2;
+  #endif
   }
 }
 void IPBusIO::WriteAddress(uint32_t addr,uint32_t data){
@@ -240,6 +266,14 @@ void IPBusIO::WriteAddress(uint32_t addr,uint32_t data){
     snprintf(str_addr,11,"0x%08X",addr);
     e2.Append(str_addr);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    char str_addr[] = "0xXXXXXXXX";
+    snprintf(str_addr,11,"0x%08X",addr);
+    e2.Append(str_addr);
+    throw e2;
+  #endif
   }
 }
 void IPBusIO::WriteRegister(std::string const & reg, uint32_t data){
@@ -254,6 +288,12 @@ void IPBusIO::WriteRegister(std::string const & reg, uint32_t data){
     BUException::REG_WRITE_DENIED e2;
     e2.Append(reg);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append(reg);
+    throw e2;
+  #endif
   }
 }
 void IPBusIO::WriteNode(uhal::Node const & node,uint32_t data){
@@ -264,6 +304,12 @@ void IPBusIO::WriteNode(uhal::Node const & node,uint32_t data){
     BUException::REG_WRITE_DENIED e2;    
     e2.Append("failed Node write");
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append("failed Node write");
+    throw e2;
+  #endif
   }
 }
 
