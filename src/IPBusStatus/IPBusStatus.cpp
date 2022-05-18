@@ -1,5 +1,7 @@
 #include <IPBusStatus/IPBusStatus.hh>
 
+#include <BUTool/ToolException.hh>
+
 IPBusStatus::IPBusStatus(IPBusIO * _regIO):
   StatusDisplay(dynamic_cast<BUTool::RegisterHelperIO*>(_regIO)){
 };
@@ -28,7 +30,7 @@ void IPBusStatus::Process(std::string const & singleTable){
         // Add the register to the given table, with a pointer to a RegHelperIO
         // class to read values later.
         try {
-          tables[tableName].Add(*itName, regIO, parameters);
+          tables[tableName].Add(*itName, regIO);
         } catch (BUException::BUS_ERROR & e) {
           continue;
         }
