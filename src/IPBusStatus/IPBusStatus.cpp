@@ -31,7 +31,11 @@ void IPBusStatus::Process(std::string const & singleTable){
       if( singleTable.empty() || TableNameCompare(tableName,singleTable)){
         // Add the register to the given table, with a pointer to a RegHelperIO
         // class to read values later.
-        tables[tableName].Add(*itName, regIO, parameters);
+        try {
+          tables[tableName].Add(*itName, regIO, parameters);
+        } catch (BUException::BUS_ERROR & e) {
+          continue;
+        }
       }
     }
   }
