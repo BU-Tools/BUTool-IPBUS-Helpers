@@ -413,7 +413,7 @@ std::string IPBusIO::GetRegParameterValue(std::string const & reg, std::string c
   auto regPar = GetParameters(reg);
   auto itPar = regPar.find(name);
   if(itPar == regPar.end()){
-    BUException::BAD_REG_NAME e;
+    BUException::BAD_VALUE e;
     e.Append("reg ");
     e.Append(reg);
     e.Append(" parameter ");
