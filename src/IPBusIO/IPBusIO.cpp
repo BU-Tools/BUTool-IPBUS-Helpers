@@ -423,3 +423,19 @@ std::string IPBusIO::GetRegParameterValue(std::string const & reg, std::string c
   }
   return itPar->second;
 }
+
+std::string IPBusIO::GetRegParameterValueWithDefault(std::string const & reg, std::string const & name,
+                                                        std::string const & defaultValue){
+  /*
+  Try to read the parameter name of the register reg.
+  If the function cannot find such a parameter specified in the address table,
+  it will return the default value instead.
+  */
+  std::string result;
+  try {
+    result = GetRegParameterValue(reg, name);
+  } catch (BUException::BAD_VALUE & e) {
+    result = defaultValue;
+  }
+  return result;
+}
