@@ -47,16 +47,7 @@ public:
   virtual std::string GetRegParameterValue(std::string const & reg, std::string const & name);
   const uMap &        GetParameters     (std::string const & reg);
 
-
-
-
- 
-  // Named register read+conversion functions, overloaded depending on the conversion value type
-  void ReadConvert(std::string const & reg, unsigned int & val);
-  void ReadConvert(std::string const & reg, int & val);
-  void ReadConvert(std::string const & reg, double & val); 
-  void ReadConvert(std::string const & reg, std::string & val);
-
+  
   //numeric, named register, action, and node writes
   virtual void WriteAddress             (uint32_t addr, uint32_t data);
   virtual void WriteRegister            (std::string const & reg, uint32_t data);
