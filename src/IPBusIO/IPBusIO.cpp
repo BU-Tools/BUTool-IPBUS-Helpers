@@ -12,6 +12,10 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+#ifdef USE_UIO_UHAL
+#include "ProtocolUIO.hpp"
+#endif
+
 using boost::algorithm::iequals;
 
 std::string IPBusIO::ReadString(std::string const & reg){
@@ -76,6 +80,14 @@ uint32_t IPBusIO::ReadAddress(uint32_t addr){
     snprintf(str_addr,11,"0x%08X",addr);
     e2.Append(str_addr);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    char str_addr[] = "0xXXXXXXXX";
+    snprintf(str_addr,11,"0x%08X",addr);
+    e2.Append(str_addr);
+    throw e2;
+  #endif
   }
 
   return vw.value();
@@ -93,6 +105,12 @@ uint32_t IPBusIO::ReadRegister(std::string const & reg){
     BUException::BAD_REG_NAME e2;
     e2.Append(reg);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append(reg);
+    throw e2;
+  #endif
   }
   return ret.value();
 }
@@ -105,6 +123,12 @@ uint32_t IPBusIO::ReadNode(uhal::Node const & node){
     BUException::REG_READ_DENIED e2;    
     e2.Append("failed Node read");
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append("failed Node read");
+    throw e2;
+  #endif
   }
 
   return vw.value();
@@ -136,83 +160,6 @@ std::vector<std::string> IPBusIO::GetRegisterNamesFromTable(std::string const & 
   return registerNames;
 }
 
-
-void IPBusIO::ReadConvert(std::string const & reg, unsigned int & val){
-  // Read the value from the named register, and update the value in place
-  uint32_t rawVal = ReadRegister(reg);
-  val = rawVal;
-}
-
-void IPBusIO::ReadConvert(std::string const & reg, int & val){
-  // Read the value from the named register, and update the value in place
-  uint32_t rawVal = ReadRegister(reg);
-
-  // Now comes the check:
-  // -55 is a placeholder for non-running fireflies
-  // That would mean rawVal 256 + (-55) = 201 since the raw value is an unsigned int
-  // We'll transform and return that value, in other cases our job is easier
-  int MAX_8_BIT_INT = 256;
-  if (rawVal == 201) {
-    val = -(int)(MAX_8_BIT_INT - rawVal);
-    return;
-  }
-  val = (int)rawVal;
- 
-}
-
-void IPBusIO::ReadConvert(std::string const & reg, double & val){
-  // Read the value from the named register, and update the value in place
-  // Check the conversion type we want:
-  // Is it a "fp16", or will we do some transformations? (i.e."m_...")
-  std::string format = GetConvertFormat(reg);
-  // 16-bit floating point to double transformation
-  if (iequals(format, "fp16")) {
-    val = ConvertFloatingPoint16ToDouble(reg);
-  }
-  
-  // Need to do some arithmetic to transform
-  else if ((format[0] == 'M') | (format[0] == 'm')) {
-    val = ConvertIntegerToDouble(reg, format);
-  }
-
-  else if (iequals(format, "linear11")) {
-    val = ConvertLinear11ToDouble(reg);
-  }
-
-  // Undefined format, throw error
-  else {
-    BUException::FORMATTING_NOT_IMPLEMENTED e;
-    e.Append("Format: " + format);
-    e.Append("\n");
-    throw e;
-  }
-}
-
-void IPBusIO::ReadConvert(std::string const & reg, std::string & val){
-  // Read the value from the named register, and update the value in place
-  std::string format = GetConvertFormat(reg);
-  
-  if ((format.size() > 1) && (('t' == format[0]) || ('T' == format[0]))) {
-    val = ConvertEnumToString(reg, format);
-  }
-  // IP addresses
-  else if (iequals(format, std::string("IP"))) {
-    val = ConvertIPAddressToString(reg);
-  }
-  // Hex numbers in string
-  else if (iequals(format, "x")) {
-    val = ReadRegister(reg);
-  }
-  // Undefined format, throw error
-  else {
-    BUException::FORMATTING_NOT_IMPLEMENTED e;
-    e.Append("Format: " + format);
-    e.Append("\n");
-    throw e;
-  }
-
-}
-
 void IPBusIO::WriteAction(std::string const & reg){
   //This is a funky uhal thing
   try{
@@ -228,6 +175,12 @@ void IPBusIO::WriteAction(std::string const & reg){
     BUException::REG_WRITE_DENIED e2;
     e2.Append(reg);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append(reg);
+    throw e2;
+  #endif
   }
 }
 void IPBusIO::WriteAddress(uint32_t addr,uint32_t data){
@@ -240,6 +193,14 @@ void IPBusIO::WriteAddress(uint32_t addr,uint32_t data){
     snprintf(str_addr,11,"0x%08X",addr);
     e2.Append(str_addr);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    char str_addr[] = "0xXXXXXXXX";
+    snprintf(str_addr,11,"0x%08X",addr);
+    e2.Append(str_addr);
+    throw e2;
+  #endif
   }
 }
 void IPBusIO::WriteRegister(std::string const & reg, uint32_t data){
@@ -254,6 +215,12 @@ void IPBusIO::WriteRegister(std::string const & reg, uint32_t data){
     BUException::REG_WRITE_DENIED e2;
     e2.Append(reg);
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append(reg);
+    throw e2;
+  #endif
   }
 }
 void IPBusIO::WriteNode(uhal::Node const & node,uint32_t data){
@@ -264,6 +231,12 @@ void IPBusIO::WriteNode(uhal::Node const & node,uint32_t data){
     BUException::REG_WRITE_DENIED e2;    
     e2.Append("failed Node write");
     throw e2;
+  #ifdef USE_UIO_UHAL
+  }catch (uhal::exception::UIOBusError & e){
+    BUException::BUS_ERROR e2;
+    e2.Append("failed Node write");
+    throw e2;
+  #endif
   }
 }
 
@@ -363,7 +336,7 @@ std::string IPBusIO::GetRegParameterValue(std::string const & reg, std::string c
   auto regPar = GetParameters(reg);
   auto itPar = regPar.find(name);
   if(itPar == regPar.end()){
-    BUException::BAD_REG_NAME e;
+    BUException::BAD_VALUE e;
     e.Append("reg ");
     e.Append(reg);
     e.Append(" parameter ");

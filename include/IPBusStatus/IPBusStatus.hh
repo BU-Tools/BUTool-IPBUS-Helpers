@@ -17,6 +17,5 @@ public:
   ~IPBusStatus(){};
 private:
   IPBusStatus();
-  void Process(std::string const & singleTable);
 };
 #endif
