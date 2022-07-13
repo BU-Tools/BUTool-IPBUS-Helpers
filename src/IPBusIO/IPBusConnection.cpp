@@ -1,5 +1,4 @@
 #include <IPBusIO/IPBusConnection.hh>
-#include <BUException/ExceptionBase.hh>
 #include <IPBusIO/IPBusExceptions.hh>
 
 #include <boost/regex.hpp>
@@ -40,40 +39,25 @@ static void hostnameToIp(char const * hostname, char *ip) {
 
 
 
-IPBusConnection::IPBusConnection(){
-  //Now Connect will not throw unless called twice
-  hw = NULL;
-  IPBusDeviceTypeName = "IPBUS_DEVICE";
+IPBusConnection::IPBusConnection(std::string const & deviceTypeName,
+				 std::vector<std::string> const & args):
+  IPBusDeviceTypeName(deviceTypeName)
+{
+  Connect(args);  
 }
-IPBusConnection::IPBusConnection(std::string const & deviceTypeName){
-  //Now Connect will not throw unless called twice
-  hw = NULL;
-  IPBusDeviceTypeName = deviceTypeName;
-}
-IPBusConnection::IPBusConnection(uhal::HwInterface * _hw){
-  //Now Connect will throw
-  hw = _hw;
-  SetHWInterface(&hw); //Update the inherited IPBusIO class which HW device to use
-  IPBusDeviceTypeName = "EXTERNAL PTR";
+IPBusConnection::IPBusConnection(std::shared_ptr<uhal::HwInterface> _hw):
+  IPBusDeviceTypeName("EXTERNAL PTR"),
+  hw(_hw)
+{
 }
 
 IPBusConnection::~IPBusConnection(){
-  if(NULL != hw){
-    delete hw;
-  }
-  hw = NULL;//Tells everyone else that this is now null
 }
 
 #define FILE_ADDR_ARG 0
 #define ADDR_TABLE_PATH_ARG 1
 #define PREFIX_ARG 2
-void IPBusConnection::Connect(std::vector<std::string> arg){
-  if(NULL != hw){
-    BUException::IPBUS_CONNECTION_ERROR e;
-    e.Append("IPBusDevice already connected\n");
-    throw e;    
-  }
-
+void IPBusConnection::Connect(std::vector<std::string> const & arg){
   //--- inhibit most noise from uHAL
   uhal::setLogLevelTo(uhal::Error());
 
@@ -140,7 +124,10 @@ void IPBusConnection::Connect(std::vector<std::string> arg){
     printf("Address table name is %s\n", addrTableFull.c_str());
 
     try {
-      hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull));
+      hw = std::make_shared<uhal::HwInterface>(
+					       uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(),
+										  uri,
+										  addrTableFull));
     } catch( uhal::exception::exception& e) {
       e.append("Module::Connect() creating hardware device");
       printf("Error creating uHAL hardware device\n");
@@ -168,7 +155,7 @@ void IPBusConnection::Connect(std::vector<std::string> arg){
     else connectionFileEntry = arg[1];
 
     try {
-      hw = new uhal::HwInterface( manager.getDevice ( connectionFileEntry.c_str() ));
+      hw = std::make_shared<uhal::HwInterface>( manager.getDevice ( connectionFileEntry.c_str() ));
     }  catch (uhal::exception::exception& e) {
       e.append("Module::Connect() creating hardware device");
       printf("Error while creating uHAL hardware device %s from connection file %s\n", connectionFileEntry.c_str(), connectionFile.c_str());
@@ -201,24 +188,11 @@ void IPBusConnection::Connect(std::vector<std::string> arg){
     std::string addrTableFull = "file://" + addressTablePath;
     
     try {
-      hw = new uhal::HwInterface( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
+      hw = std::make_shared<uhal::HwInterface>( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
     } catch( uhal::exception::exception& e) {
       e.append("Module::Connect() creating hardware device");
       printf("Error creating uHAL hardware device\n");
     }
 
   }
-
-
-  if( hw == NULL){
-    BUException::IPBUS_CONNECTION_ERROR e;
-    e.Append("Unable to create HWInterface\n");
-    throw e;    
-  }
-  SetHWInterface(&hw); //Update the inherited IPBusIO class which HW device to use
-}
-
-
-uhal::HwInterface * const * IPBusConnection::GetHWInterface(){
-  return &hw;
 }
