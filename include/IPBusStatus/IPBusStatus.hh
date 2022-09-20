@@ -2,7 +2,7 @@
 #define __IPBUS_STATUS_HH__
 
 #include <IPBusIO/IPBusIO.hh>
-#include <BUTool/helpers/StatusDisplay/StatusDisplay.hh>
+#include <StatusDisplay/StatusDisplay.hh>
 
 #if UHAL_VER_MAJOR >= 2 && UHAL_VER_MINOR >= 8
 #include <unordered_map>
@@ -11,12 +11,11 @@ typedef std::unordered_map<std::string, std::string> uMap;
 #include <boost/unordered_map.hpp>
 typedef boost::unordered_map<std::string, std::string> uMap;
 #endif
-class IPBusStatus: public IPBusIO, public BUTool::StatusDisplay {
+class IPBusStatus: public BUTool::StatusDisplay {
 public:
-  IPBusStatus(uhal::HwInterface * const * _hw){SetHWInterface(_hw);};
+  IPBusStatus(IPBusIO * _regIO);
   ~IPBusStatus(){};
 private:
   IPBusStatus();
-  void Process(std::string const & singleTable);
 };
 #endif
