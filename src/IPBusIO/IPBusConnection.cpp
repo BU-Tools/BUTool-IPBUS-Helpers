@@ -60,7 +60,7 @@ IPBusConnection::~IPBusConnection(){
 #define PREFIX_ARG 2
 void IPBusConnection::Connect(std::vector<std::string> const & arg){
   //--- inhibit most noise from uHAL
-  uhal::setLogLevelTo(uhal::Error());
+  uhal::setLogLevelTo(uhal::Fatal());
 
   if(0 == arg.size()){
     BUException::IPBUS_CONNECTION_ERROR e;
