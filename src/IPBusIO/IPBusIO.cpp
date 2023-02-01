@@ -81,7 +81,7 @@ uint32_t IPBusIO::ReadAddress(uint32_t addr){
     e2.Append(str_addr);
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     char str_addr[] = "0xXXXXXXXX";
     snprintf(str_addr,11,"0x%08X",addr);
@@ -106,7 +106,7 @@ uint32_t IPBusIO::ReadRegister(std::string const & reg){
     e2.Append(reg);
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     e2.Append(reg);
     throw e2;
@@ -124,7 +124,7 @@ uint32_t IPBusIO::ReadNode(uhal::Node const & node){
     e2.Append("failed Node read");
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     e2.Append("failed Node read");
     throw e2;
@@ -176,7 +176,7 @@ void IPBusIO::WriteAction(std::string const & reg){
     e2.Append(reg);
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     e2.Append(reg);
     throw e2;
@@ -194,7 +194,7 @@ void IPBusIO::WriteAddress(uint32_t addr,uint32_t data){
     e2.Append(str_addr);
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     char str_addr[] = "0xXXXXXXXX";
     snprintf(str_addr,11,"0x%08X",addr);
@@ -216,7 +216,7 @@ void IPBusIO::WriteRegister(std::string const & reg, uint32_t data){
     e2.Append(reg);
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     e2.Append(reg);
     throw e2;
@@ -232,7 +232,7 @@ void IPBusIO::WriteNode(uhal::Node const & node,uint32_t data){
     e2.Append("failed Node write");
     throw e2;
   #ifdef USE_UIO_UHAL
-  }catch (uhal::exception::UIOBusError & e){
+  }catch (uhal::exception::SigBusError & e){
     BUException::BUS_ERROR e2;
     e2.Append("failed Node write");
     throw e2;
