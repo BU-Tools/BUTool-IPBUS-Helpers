@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <uhal/SigBusGuard.hpp>
 
 static void hostnameToIp(char const * hostname, char *ip) {
   struct addrinfo hints, *servinfo, *p;  
@@ -59,7 +60,7 @@ IPBusConnection::~IPBusConnection(){
 #define PREFIX_ARG 2
 void IPBusConnection::Connect(std::vector<std::string> const & arg){
   //--- inhibit most noise from uHAL
-  uhal::setLogLevelTo(uhal::Error());
+  uhal::setLogLevelTo(uhal::Fatal());
 
   if(0 == arg.size()){
     BUException::IPBUS_CONNECTION_ERROR e;
@@ -195,4 +196,6 @@ void IPBusConnection::Connect(std::vector<std::string> const & arg){
     }
 
   }
+  //Block sigbus so that we can use the uhal::SigBusGuard
+  uhal::SigBusGuard::blockSIGBUS();
 }
