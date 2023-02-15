@@ -130,7 +130,7 @@ void IPBusConnection::Connect(std::vector<std::string> const & arg){
 										  uri,
 										  addrTableFull));
     } catch( uhal::exception::exception& e) {
-      e.append("Module::Connect() creating hardware device");
+      e.append("Module::Connect() creating hardware device\n");
       e.append("Error creating uHAL hardware device\n");
       throw;
     }
@@ -159,7 +159,7 @@ void IPBusConnection::Connect(std::vector<std::string> const & arg){
     try {
       hw = std::make_shared<uhal::HwInterface>( manager.getDevice ( connectionFileEntry.c_str() ));
     }  catch (uhal::exception::exception& e) {
-      e.append("Module::Connect() creating hardware device");
+      e.append("Module::Connect() creating hardware device\n");
       e.append(("Error while creating uHAL hardware device " + connectionFileEntry + " from connection file " + connectionFile + "\n").c_str());
       throw;
     }
@@ -193,7 +193,7 @@ void IPBusConnection::Connect(std::vector<std::string> const & arg){
     try {
       hw = std::make_shared<uhal::HwInterface>( uhal::ConnectionManager::getDevice(IPBusDeviceTypeName.c_str(), uri, addrTableFull + "/" + IPBusDeviceTypeName + ".xml"));
     } catch( uhal::exception::exception& e) {
-      e.append("Module::Connect() creating hardware device");
+      e.append("Module::Connect() creating hardware device\n");
       e.append("Error creating uHAL hardware device\n");
       throw;
     }
