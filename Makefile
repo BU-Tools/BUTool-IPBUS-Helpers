@@ -41,7 +41,8 @@ LIBRARY_PATH +=-L$(BOOST_LIB)
 endif
 
 LIBRARIES =    	-lboost_regex \
-				-lBUTool_BUTextIO
+				-lBUTool_BUTextIO \
+				-lBUTool_Helpers
 
 
 INSTALL_PATH ?= ./install
