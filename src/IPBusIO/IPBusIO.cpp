@@ -31,7 +31,15 @@ std::string IPBusIO::ReadString(std::string const & reg){
       throw e2;
     }
     std::vector<uint32_t> val = BlockReadRegister(reg,stringLen);
-    std::string ret( (char *) val.data(),stringLen*sizeof(uint32_t));
+    std::string ret;
+    char * ptr = (char*) val.data();
+    for(size_t i = 0; i < sizeof(uint32_t)*val.size();i++){
+      if(ptr[i] == 0){
+	break;
+      }
+      ret.push_back(ptr[i]);
+    }
+    //    std::string ret( (char *) val.data(),stringLen*sizeof(uint32_t));
     return ret;
   }
 
